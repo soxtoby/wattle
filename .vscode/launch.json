@@ -9,17 +9,9 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/lib/cmd.js",
-            "outFiles": [
-                "${workspaceFolder}/lib/*.js"
-            ],
             "args": [
                 "./tests/*"
-            ],
-            "runtimeArgs": [
-                "--nolazy",
-                "-r", "ts-node/register"
-            ],
-            "protocol": "inspector"
+            ]
         }
     ]
 }

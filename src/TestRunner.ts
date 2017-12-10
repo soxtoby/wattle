@@ -36,23 +36,31 @@ class TestRun implements ITestMiddleware {
     private currentTest?: Test;
     private currentTestContext?: ITestContext;
     private isReturningFromTest: boolean = false;
+    private collectionOnly: boolean;
 
     constructor(
         private middleware: ITestMiddleware[] = []
     ) { }
 
     async runTests(testModules: string[]) {
+        // Load test modules first before running tests
+        // VS Code breakpoints don't work if tests are run during first load
+        this.collectionOnly = true;
         for (const module of testModules) {
             try {
                 await import(module);
             } catch (error) {
                 let failedModule = new Test(module, () => { });
                 failedModule.error = error;
-                this.collectMiddleware(failedModule);
-                this.runMiddleware(failedModule, {});
+                this.doCollect(failedModule);
+                this.doRun(failedModule, {});
                 this.rootTests.push(failedModule)
             }
         }
+        this.collectionOnly = false;
+
+        for (let test of this.rootTests)
+            this.runTest(test);
 
         return this.rootTests;
     }
@@ -62,26 +70,30 @@ class TestRun implements ITestMiddleware {
 
         if (this.currentTestList.find(t => t.name == name) == null) {
             let newTest = new Test(name, testFn, this.currentTest);
-            this.collectMiddleware(newTest);
+            this.doCollect(newTest);
         }
 
         let test = this.currentTestList.find(t => t.name == name);
 
-        if (test) {
+        if (test && !this.collectionOnly) {
             test.testFn = testFn;
-            while (!this.isReturningFromTest && !test.hasCompleted)
-                this.runMiddleware(test, this.currentTestContext || (this.currentTestContext = {}));
+            this.runTest(test);
         }
 
         return test;
     }
 
-    private collectMiddleware(test: Test) {
+    private runTest(test: Test) {
+        while (!this.isReturningFromTest && !test.hasCompleted)
+            this.doRun(test, this.currentTestContext || (this.currentTestContext = {}));
+    }
+
+    private doCollect(test: Test) {
         let collectFn = bindMiddlewareFunction(m => m.collect, this.middleware.concat(this), test);
         collectFn();
     }
 
-    private runMiddleware(test: Test, context: ITestContext) {
+    private doRun(test: Test, context: ITestContext) {
         let runFn = bindMiddlewareFunction(m => m.run, this.middleware.concat(this), test, context);
         runFn();
     }
