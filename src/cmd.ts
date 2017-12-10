@@ -15,8 +15,8 @@ let argv = yargs
             alias: 'test-files',
             array: true,
             type: 'string',
-            describe: 'One or more globs of test files to run',
-            defaultDescription: 'All JavaScript & TypeScript files in the current folder'
+            describe: "One or more globs of test files to run.",
+            defaultDescription: "All JavaScript & TypeScript files in the current folder"
         },
         'm': {
             alias: 'middleware',
@@ -24,7 +24,13 @@ let argv = yargs
             type: 'string',
             default: [],
             defaultDescription: 'none',
-            describe: 'Add one or more middleware modules'
+            describe: "Add one or more middleware modules."
+        },
+        'e': {
+            alias: 'errors-only',
+            type: 'boolean',
+            default: false,
+            describe: "Only output errors. Useful when you've got a lot of tests."
         }
     })
     .argv;
@@ -55,16 +61,32 @@ let loggingMiddleware: ITestMiddleware = {
 
         function printTestResult(test: Test) {
             if (test.hasPassed) {
-                console.log(chalk.green(`${indent(test)}✓ ${test.name}`));
+                if (!argv.errorsOnly)
+                    console.log(chalk.green(`${indent(test)}✓ ${test.name}`));
             } else {
                 console.log(chalk.red(`${indent(test)}✗ ${test.name}`));
-                if (test.error)
+                if (test.error) {
+                    let testFrame = stackFrames(test.error)
+                        .find(f => files.indexOf(f.file) >= 0);
+                    if (testFrame)
+                        console.log(`${indent(test)}  ${path.relative('.', testFrame.file)}:${testFrame.line}  ${test.error}`);
+                    else
                     console.log(`${indent(test)}  ${test.error}`);
+                }
             }
             test.children.forEach(printTestResult);
         }
     }
 };
+
+function stackFrames(error: Error) {
+    let framePattern = /\((.*):(\d+):(\d+)\)$/g;
+    let frame: RegExpExecArray | null;
+    let result = [] as { file: string, line: string, col: string }[];
+    while (frame = framePattern.exec(error.stack || ''))
+        result.push({ file: frame[1], line: frame[2], col: frame[3] });
+    return result;
+}
 
 function indent(test: Test) {
     return ' '.repeat(test.depth);
