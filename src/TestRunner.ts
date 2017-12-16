@@ -36,7 +36,7 @@ class TestRun implements ITestMiddleware {
     private currentTest?: Test;
     private currentTestContext?: ITestContext;
     private isReturningFromTest: boolean = false;
-    private collectionOnly: boolean;
+    private importingModule?: string;
 
     constructor(
         private middleware: ITestMiddleware[] = []
@@ -45,9 +45,9 @@ class TestRun implements ITestMiddleware {
     async runTests(testModules: string[]) {
         // Load test modules first before running tests
         // VS Code breakpoints don't work if tests are run during first load
-        this.collectionOnly = true;
-        for (const module of testModules) {
+        for (let module of testModules) {
             try {
+                this.importingModule = module;
                 await import(module);
             } catch (error) {
                 let failedModule = new Test(module, () => { });
@@ -55,9 +55,10 @@ class TestRun implements ITestMiddleware {
                 this.doCollect(failedModule);
                 this.doRun(failedModule, {});
                 this.rootTests.push(failedModule)
+            } finally {
+                delete this.importingModule;
             }
         }
-        this.collectionOnly = false;
 
         for (let test of this.rootTests)
             this.runTest(test);
@@ -69,13 +70,13 @@ class TestRun implements ITestMiddleware {
         (testFn as any).displayName = name;
 
         if (this.currentTestList.find(t => t.name == name) == null) {
-            let newTest = new Test(name, testFn, this.currentTest);
+            let newTest = new Test(name, testFn, this.currentTest, this.importingModule);
             this.doCollect(newTest);
         }
 
         let test = this.currentTestList.find(t => t.name == name);
 
-        if (test && !this.collectionOnly) {
+        if (test && !this.importingModule) {
             test.testFn = testFn;
             this.runTest(test);
         }

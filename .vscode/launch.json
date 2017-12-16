@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/lib/cmd.js",
+            "program": "${workspaceFolder}/lib/CommandLineRunner.js",
             "args": [
                 "./tests/*"
             ]

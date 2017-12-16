@@ -118,4 +118,44 @@ describe("Test", () => {
             expect(grandchild.depth).to.equal(2);
         });
     });
+
+    describe("module", function () {
+        when("created without a module", () => {
+            let parent = new Test('', sinon.stub());
+            let sut = new Test('name', sinon.stub(), parent);
+
+            it("doesn't have a module", () => expect(sut.module).to.be.undefined);
+
+            when("module is set", () => {
+                sut.module = 'some module';
+
+                it("has specified module", () => expect(sut.module).to.equal('some module'));
+
+                when("module is cleared", () => {
+                    sut.module = undefined;
+
+                    it("doesn't have a module", () => expect(sut.module).to.be.undefined);
+                });
+            });
+
+            when("parent has a module", () => {
+                parent.module = 'parent module';
+
+                it("takes parent's module", () => expect(sut.module).to.equal('parent module'));
+            });
+        });
+
+        when("created with a module", () => {
+            let parent = new Test('', sinon.stub());
+            let sut = new Test('', sinon.stub(), parent, 'module name');
+
+            it("has specified module", () => expect(sut.module).to.equal('module name'));
+
+            when("parent has a module", () => {
+                parent.module = 'parent module';
+
+                it("still has it's own specified module", () => expect(sut.module).to.equal('module name'));
+            });
+        });
+    });
 });

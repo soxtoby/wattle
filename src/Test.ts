@@ -6,7 +6,8 @@ export class Test {
     constructor(
         public name: string,
         public testFn: TestFunction,
-        public parent?: Test
+        public parent?: Test,
+        private _module?: string
     ) { }
 
     error: any;
@@ -23,10 +24,13 @@ export class Test {
         }
     }
 
-    get hasCompleted(): boolean {
-        return !!this.runCount
-            && (!!this.error
-                || this.children.every(c => c.hasCompleted));
+    get module(): string | undefined {
+        return this._module
+            || this.parent && this.parent.module;
+    }
+
+    set module(module: string | undefined) {
+        this._module = module;
     }
 
     get depth(): number {
@@ -37,5 +41,11 @@ export class Test {
         return this.hasCompleted
             && !this.error
             && this.children.every(c => c.hasPassed);
+    }
+
+    get hasCompleted(): boolean {
+        return !!this.runCount
+            && (!!this.error
+                || this.children.every(c => c.hasCompleted));
     }
 }

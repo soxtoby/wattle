@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "node",
             "args": [
-                "./lib/cmd.js", "--errors-only",
+                "./lib/CommandLineRunner.js", "--errors-only",
                 "./tests/*"
             ],
             "presentation": {
