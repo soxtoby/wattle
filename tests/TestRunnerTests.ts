@@ -1,24 +1,27 @@
 import './setup';
-import { describe, when, then, it, TestRunner } from '../lib/index';
+import { describe, when, then, it, ITestContext } from '../lib/index';
 import * as sinon from 'sinon';
 import { SinonStub, SinonSpy } from 'sinon';
-import { Test } from '../lib/test';
 import { expect } from 'chai';
+import { ITestMiddleware } from '../src/Middleware';
+import { Test } from '../src/test';
+import { TestRunner } from '../src/TestRunner';
+import * as mockPromises from 'mock-promises';
 
-describe("TestRun", () => {
-    var sut = new TestRunner();
+describe("running individual tests", () => {
+    let sut = new TestRunner();
 
     when("running empty test method", () => {
-        var testFunction = sinon.stub();
-        var result = sut.test("TestName", testFunction)!;
+        let testFunction = sinon.stub();
+        let result = sut.test("TestName", testFunction)!;
 
         then("test is completed", () => expect(result.hasCompleted).to.be.true);
         then("test run once", () => expect(result.runCount).to.equal(1));
         then("test run with test context", () => expect(testFunction).to.not.have.been.calledOn(undefined));
 
         when("running another empty test method", () => {
-            var testFunction2 = sinon.stub();
-            var result2 = sut.test("AnotherTestName", () => { })!;
+            let testFunction2 = sinon.stub();
+            let result2 = sut.test("AnotherTestName", () => { })!;
 
             then("second test is completed", () => expect(result2.hasCompleted).to.be.true);
             then("second test run once", () => expect(result2.runCount).to.equal(1));
@@ -28,13 +31,13 @@ describe("TestRun", () => {
     });
 
     when("running a test method with an inner test method call", () => {
-        var innerResult: Test;
-        var innerTestFunction = sinon.stub();
-        var testFunction = () => {
+        let innerResult: Test;
+        let innerTestFunction = sinon.stub();
+        let testFunction = () => {
             innerResult = sut.test("Inner Test", innerTestFunction)!;
         };
         testFunction = sinon.spy(testFunction);
-        var result = sut.test("Outer Test", testFunction)!;
+        let result = sut.test("Outer Test", testFunction)!;
 
         then("outer test is completed", () => expect(result.hasCompleted).to.be.true);
         then("outer test run once", () => expect(result.runCount).to.equal(1));
@@ -47,16 +50,16 @@ describe("TestRun", () => {
     });
 
     when("running a test method with 2 inner test method calls", () => {
-        var innerResult: Test, innerResult2: Test;
-        var innerFunction1 = sinon.stub();
-        var innerFunction2 = sinon.stub();
-        var testFunction = () => {
+        let innerResult: Test, innerResult2: Test;
+        let innerFunction1 = sinon.stub();
+        let innerFunction2 = sinon.stub();
+        let testFunction = () => {
             innerResult = sut.test("Inner Test", innerFunction1)!;
             innerResult2 = sut.test("Inner Test 2", innerFunction2)!;
         };
         testFunction = sinon.spy(testFunction);
         let testSpy = testFunction as SinonSpy;
-        var result = sut.test("Outer Test", testFunction)!;
+        let result = sut.test("Outer Test", testFunction)!;
 
         then("outer test is completed", () => expect(result.hasCompleted).to.be.true);
         then("outer test run twice", () => expect(result.runCount).to.equal(2));
@@ -73,8 +76,8 @@ describe("TestRun", () => {
     });
 
     when("running a test method with 3 inner test method calls", () => {
-        var innerResult: Test, innerResult2: Test, innerResult3: Test;
-        var result = sut.test("Outer Test", () => {
+        let innerResult: Test, innerResult2: Test, innerResult3: Test;
+        let result = sut.test("Outer Test", () => {
             innerResult = sut.test("Inner Test", () => { })!;
             innerResult2 = sut.test("Inner Test 2", () => { })!;
             innerResult3 = sut.test("Inner Test 3", () => { })!;
@@ -86,8 +89,8 @@ describe("TestRun", () => {
     });
 
     when("running a test method with a double nested test method call", () => {
-        var innerResult: Test, innerInnerResult: Test, innerInnerResult2: Test;
-        var result = sut.test("Outer Test", () => {
+        let innerResult: Test, innerInnerResult: Test, innerInnerResult2: Test;
+        let result = sut.test("Outer Test", () => {
             innerResult = sut.test("Inner Test", () => {
                 innerInnerResult = sut.test("Inner Inner Test", () => { })!;
                 innerInnerResult2 = sut.test("Inner Inner Test 2", () => { })!;
@@ -101,3 +104,42 @@ describe("TestRun", () => {
     });
 });
 
+describe("running tests in test files", function () {
+    Promise = mockPromises.getMockPromise(Promise);
+
+    class Spy implements ITestMiddleware {
+        collectedTests: Test[] = [];
+        collectedTestNames: string[] = [];
+        runTests: string[] = [];
+
+        collect(test: Test, next: () => void): void {
+            this.collectedTests.push(test);
+            this.collectedTestNames.push(test.name);
+            next();
+        }
+
+        run(test: Test, context: ITestContext, next: () => void): void {
+            this.runTests.push(test.name);
+            next();
+        }
+    }
+
+    let spy = new Spy();
+    let sut = new TestRunner([spy]);
+
+    when("test files are run", () => {
+        let testFiles = ['../tests/test-files/file1.ts', '../tests/test-files/file2.ts'];
+        testFiles.forEach(f => delete require.cache[require.resolve(f)]);
+        sut.runTests(testFiles);
+        mockPromises.tickAllTheWay();
+
+        then("files are loaded before tests are run", () => expect(spy.collectedTestNames).to.have.members(['file1', 'file2', 'file1 test', 'file2 test']));
+
+        then("all tests are run", () => expect(spy.runTests).to.have.members([
+            'file1', 'file1 test',
+            'file2', 'file2 test'
+        ]));
+    });
+
+    Promise = mockPromises.getOriginalPromise(Promise);
+});
