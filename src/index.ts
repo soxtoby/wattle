@@ -1,3 +1,4 @@
+export * from './Test';
 export { ITestContext, ITestMiddleware, TestMiddleware } from './Middleware';
 export {
     TestRunner,

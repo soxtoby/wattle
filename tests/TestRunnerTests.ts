@@ -1,3 +1,4 @@
+/// <reference path="./mock-promises.d.ts" />
 import './setup';
 import { describe, when, then, it, ITestContext } from '../lib/index';
 import * as sinon from 'sinon';
@@ -7,6 +8,7 @@ import { ITestMiddleware } from '../src/Middleware';
 import { Test } from '../src/test';
 import { TestRunner } from '../src/TestRunner';
 import * as mockPromises from 'mock-promises';
+import { TestMiddleware } from '../lib/Middleware';
 
 describe("running individual tests", () => {
     let sut = new TestRunner();
@@ -107,18 +109,18 @@ describe("running individual tests", () => {
 describe("running tests in test files", function () {
     Promise = mockPromises.getMockPromise(Promise);
 
-    class Spy implements ITestMiddleware {
+    class Spy extends TestMiddleware {
         collectedTests: Test[] = [];
         collectedTestNames: string[] = [];
         runTests: string[] = [];
 
-        collect(test: Test, next: () => void): void {
+        collect(test: Test, next: () => void) {
             this.collectedTests.push(test);
             this.collectedTestNames.push(test.name);
             next();
         }
 
-        run(test: Test, context: ITestContext, next: () => void): void {
+        run(test: Test, context: ITestContext, next: () => void) {
             this.runTests.push(test.name);
             next();
         }

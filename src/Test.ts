@@ -2,16 +2,31 @@ import { ITestContext } from "./Middleware";
 
 export type TestFunction = () => any;
 
-export class Test {
+export interface ITest {
+    name: string;
+    fullName: string[];
+    testFn: TestFunction;
+    parent?: ITest;
+    error: any;
+    children: ITest[];
+    runCount: number;
+    module: string;
+    readonly depth: number;
+    readonly hasPassed: boolean;
+    readonly hasCompleted: boolean;
+    run(context: ITestContext): void;
+}
+
+export class Test implements ITest {
     constructor(
         public name: string,
         public testFn: TestFunction,
-        public parent?: Test,
+        public parent?: ITest,
         private _module?: string
     ) { }
 
     error: any;
-    children: Test[] = [];
+    children: ITest[] = [];
     runCount: number = 0;
 
     run(context: ITestContext) {
@@ -24,13 +39,20 @@ export class Test {
         }
     }
 
-    get module(): string | undefined {
+    get module(): string {
         return this._module
-            || this.parent && this.parent.module;
+            || this.parent && this.parent.module
+            || '';
     }
 
-    set module(module: string | undefined) {
+    set module(module: string) {
         this._module = module;
+    }
+
+    get fullName(): string[] {
+        return this.parent
+            ? this.parent.fullName.concat(this.name)
+            : [this.name];
     }
 
     get depth(): number {

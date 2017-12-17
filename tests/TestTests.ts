@@ -124,7 +124,7 @@ describe("Test", () => {
             let parent = new Test('', sinon.stub());
             let sut = new Test('name', sinon.stub(), parent);
 
-            it("doesn't have a module", () => expect(sut.module).to.be.undefined);
+            it("doesn't have a module", () => expect(sut.module).to.be.empty);
 
             when("module is set", () => {
                 sut.module = 'some module';
@@ -132,9 +132,9 @@ describe("Test", () => {
                 it("has specified module", () => expect(sut.module).to.equal('some module'));
 
                 when("module is cleared", () => {
-                    sut.module = undefined;
+                    sut.module = '';
 
-                    it("doesn't have a module", () => expect(sut.module).to.be.undefined);
+                    it("doesn't have a module", () => expect(sut.module).to.be.empty);
                 });
             });
 

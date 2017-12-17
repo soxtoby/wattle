@@ -1,5 +1,5 @@
-import { Test, TestFunction } from "./Test";
-import { ITestMiddleware, ITestContext, bindMiddlewareFunction } from "./Middleware";
+import { Test, TestFunction, ITest } from "./Test";
+import { ITestMiddleware, ITestContext, bindMiddlewareFunction, TestMiddleware } from "./Middleware";
 import { fail } from "assert";
 
 let currentTestRun: TestRun | null = null;
@@ -31,16 +31,17 @@ export class TestRunner {
     get rootTests() { return this.run.rootTests; }
 }
 
-class TestRun implements ITestMiddleware {
-    public rootTests: Test[] = [];
-    private currentTest?: Test;
+class TestRun extends TestMiddleware {
+    public rootTests: ITest[] = [];
+    private rootTestsByModule: { [module: string]: ITest[] } = {};
+    private currentTest?: ITest;
     private currentTestContext?: ITestContext;
     private isReturningFromTest: boolean = false;
     private importingModule?: string;
 
     constructor(
         private middleware: ITestMiddleware[] = []
-    ) { }
+    ) {super(); }
 
     async runTests(testModules: string[]) {
         // Load test modules first before running tests
@@ -61,9 +62,24 @@ class TestRun implements ITestMiddleware {
         }
 
         for (let test of this.rootTests)
-            this.runTest(test);
+            (this.rootTestsByModule[test.module] || (this.rootTestsByModule[test.module] = [])).push(test);
+
+        for (let module of Object.keys(this.rootTestsByModule).sort())
+            this.doRunModule(module);
+
+        this.doFinally(this.rootTests);
 
         return this.rootTests;
+    }
+
+    private doRunModule(module: string) {
+        let runModuleFn = bindMiddlewareFunction(m => m.runModule, this.middleware.concat(this), module);
+        runModuleFn();
+    }
+
+    runModule(module: string, next: () => void) {
+        for (let test of this.rootTestsByModule[module] || [])
+            this.runTest(test);
     }
 
     test(name: string, testFn: TestFunction) {
@@ -84,26 +100,31 @@ class TestRun implements ITestMiddleware {
         return test;
     }
 
-    private runTest(test: Test) {
+    private runTest(test: ITest) {
         while (!this.isReturningFromTest && !test.hasCompleted)
             this.doRun(test, this.currentTestContext || (this.currentTestContext = {}));
     }
 
-    private doCollect(test: Test) {
+    private doCollect(test: ITest) {
         let collectFn = bindMiddlewareFunction(m => m.collect, this.middleware.concat(this), test);
         collectFn();
     }
 
-    private doRun(test: Test, context: ITestContext) {
+    private doRun(test: ITest, context: ITestContext) {
         let runFn = bindMiddlewareFunction(m => m.run, this.middleware.concat(this), test, context);
         runFn();
     }
 
-    collect(test: Test, next: () => void) {
+    private doFinally(rootTests: ITest[]) {
+        let finallyFn = bindMiddlewareFunction(m => m.finally, this.middleware.concat(this), rootTests);
+        finallyFn();
+    }
+
+    collect(test: ITest, next: () => void) {
         this.currentTestList.push(test);
     }
 
-    run(test: Test, context: ITestContext, next: () => void) {
+    run(test: ITest, context: ITestContext, next: () => void) {
         this.currentTest = test;
 
         test.run(context);

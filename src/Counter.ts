@@ -17,3 +17,5 @@ export class Counter extends TestMiddleware {
         }
     }
 }
+
+export default new Counter();
