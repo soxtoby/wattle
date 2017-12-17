@@ -37,7 +37,8 @@ let argv = yargs
 
 let fileGlobs = argv.testFiles as string[]
     || argv._.length && argv._
-    || ['**/*.@(ts|tsx|js|jsx)', '!node_modules/**', '!**/*.d.ts'];
+    || ['**/*.@(ts|tsx|js|jsx)', '!node_modules/**'];
+fileGlobs.push('!./**/*.d.ts'); // No one wants to test .d.ts files
 let testGlobs = fileGlobs.filter(g => g[0] != '!');
 let ignoreGlobs = fileGlobs.filter(g => g[0] == '!').map(g => g.substring(1));
 let middlewareModules = argv.middleware as string[];
