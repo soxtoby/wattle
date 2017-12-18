@@ -47,7 +47,7 @@ export class ConsoleLogger extends TestMiddleware {
 }
 
 function stackFrames(error: Error) {
-    let framePattern = /\((.*):(\d+):(\d+)\)$/g;
+    let framePattern = /\((.*):(\d+):(\d+)\)/g;
     let frame: RegExpExecArray | null;
     let result = [] as { file: string, line: string, col: string }[];
     while (frame = framePattern.exec(error.stack || ''))
