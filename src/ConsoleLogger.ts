@@ -9,11 +9,13 @@ export class ConsoleLogger extends TestMiddleware {
 
     constructor(
         private errorsOnly: boolean,
+        private quiet: boolean,
         private testFiles: string[]
     ) { super(); }
 
     runModule(module: string, next: () => void): void {
-        console.log(module);
+        if (!this.quiet)
+            console.log(module);
         next();
     }
 
@@ -24,6 +26,9 @@ export class ConsoleLogger extends TestMiddleware {
     }
 
     private printTestResult(test: ITest) {
+        if (this.quiet)
+            return;
+
         if (test.hasPassed) {
             if (!this.errorsOnly)
                 console.log(chalk.green(`${indent(test)}✓ ${test.name}`));

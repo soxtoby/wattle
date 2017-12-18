@@ -1,19 +1,21 @@
-Wattle
-======
-A hierarchical test runner for Node.
+# Wattle
+...as in, "wattle happen when I run _this_ code?"
 
-Getting Started
----------------
-Install NPM package with:
+Wattle is a hierarchical test runner for Node that aims to make writing tests as easy as possible.
+
+## Getting Started
+Install NPM package both locally and globally with:
 
 ```js
-npm install --dev wattle
+npm install --save-dev wattle
+npm install --global wattle
 ```
 
 or
 
 ```js
 yarn add --dev wattle
+yarn global add wattle
 ```
 
 In your test test files, import the test functions:
@@ -24,13 +26,13 @@ import { describe, when, then, it, test } from 'wattle';
 
 (note that all these functions do the same thing - they're just for readability)
 
-import an assertion library (I recommend chai):
+Import an assertion library (I recommend chai):
 
 ```js
 import { expect } from 'chai';
 ```
 
-Then start testing:
+Then start writing tests:
 
 ```js
 describe("my class", () => {
@@ -49,3 +51,25 @@ describe("my class", () => {
     });
 });
 ```
+
+To run the tests, just run the `wattle` command from the folder containing your test files.
+
+
+## Command Line
+```
+wattle [-t|--test-files] <test file globs> [options]
+```
+
+Option                 |Description
+-----------------------|-----------
+`-t`, `--test-files`   | One or more globs of test files to run
+`-m`, `--middleware`   | Add one or more middleware modules
+`-e`, `--errors-only`  | Only output errors. Useful when you've got a lot of tests.
+`-q`, `--quiet`        | Only output final results.
+`-b`, `--build-server` | Output results in a format suitable for a build server. Currently supports TeamCity, AppVeyor, and TFS/VSTS.
+
+## Build Server Support
+With the `--build-server` option, test results will be automatically logged to TeamCity and AppVeyor. For TFS/VSTS, wattle will create a `wattle-results.trx` file that needs to be published with a **Publish Test Results** build step.
+
+## Visual Studio Code Integration
+There are example launch and task configurations in the `examples` folder that you can use to get started. The task configuration includes a problem matcher will will show test failures as errors in the code.

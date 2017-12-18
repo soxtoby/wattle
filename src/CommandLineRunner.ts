@@ -34,11 +34,17 @@ let argv = yargs
             default: false,
             describe: "Only output errors. Useful when you've got a lot of tests."
         },
+        'q': {
+            alias: 'quiet',
+            type: 'boolean',
+            default: false,
+            describe: "Only output final results."
+        },
         'b': {
             alias: 'build-server',
             type: 'boolean',
             default: false,
-            describe: "Output results in a format suitable for build server."
+            describe: "Output results in a format suitable for a build server."
         }
     })
     .argv;
@@ -60,7 +66,7 @@ let counter = new Counter();
 
 let logger = argv.buildServer
     ? new BuildServerLogger()
-    : new ConsoleLogger(argv.errorsOnly, files);
+    : new ConsoleLogger(argv.errorsOnly, argv.quiet, files);
 
 let middleware = middlewareModules
     .map(m => require(m).default)
