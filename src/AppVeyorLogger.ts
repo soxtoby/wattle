@@ -14,6 +14,7 @@ export class AppVeyorLogger extends TestMiddleware {
                     '-Framework', 'wattle',
                     '-FileName', test.module!,
                     '-Outcome', test.hasPassed ? 'Passed' : 'Failed',
+                    '-Duration', test.duration.toFixed(0),
                     ...(test.hasPassed ? [] : ['-ErrorMessage', test.error.toString(), '-ErrorStackTrace', test.error.stack])
                 ]);
             }

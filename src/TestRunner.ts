@@ -41,7 +41,10 @@ class TestRun extends TestMiddleware {
 
     constructor(
         private middleware: ITestMiddleware[] = []
-    ) {super(); }
+    ) {
+        super();
+        this.middleware = this.middleware.concat([this]);
+    }
 
     async runTests(testModules: string[]) {
         // Load test modules first before running tests
@@ -73,7 +76,7 @@ class TestRun extends TestMiddleware {
     }
 
     private doRunModule(module: string) {
-        let runModuleFn = bindMiddlewareFunction(m => m.runModule, this.middleware.concat(this), module);
+        let runModuleFn = bindMiddlewareFunction(m => m.runModule, this.middleware, module);
         runModuleFn();
     }
 
@@ -106,17 +109,17 @@ class TestRun extends TestMiddleware {
     }
 
     private doCollect(test: ITest) {
-        let collectFn = bindMiddlewareFunction(m => m.collect, this.middleware.concat(this), test);
+        let collectFn = bindMiddlewareFunction(m => m.collect, this.middleware, test);
         collectFn();
     }
 
     private doRun(test: ITest, context: ITestContext) {
-        let runFn = bindMiddlewareFunction(m => m.run, this.middleware.concat(this), test, context);
+        let runFn = bindMiddlewareFunction(m => m.run, this.middleware, test, context);
         runFn();
     }
 
     private doFinally(rootTests: ITest[]) {
-        let finallyFn = bindMiddlewareFunction(m => m.finally, this.middleware.concat(this), rootTests);
+        let finallyFn = bindMiddlewareFunction(m => m.finally, this.middleware, rootTests);
         finallyFn();
     }
 

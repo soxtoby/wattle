@@ -17,12 +17,12 @@ export class TeamCityLogger extends TestMiddleware {
         if (test.hasCompleted && !test.children.length || test.error) {
             let testName: string = test.fullName.join(', ');
 
-            this.log('testStarted', { name: testName });
+            this.log('testStarted', { name: testName, captureStandardOutput: 'true' });
 
             if (test.error)
                 this.log('testFailed', { name: testName, message: test.error.toString(), details: test.error.stack });
 
-            this.log('testFinished', { name: testName });
+            this.log('testFinished', { name: testName, duration: test.duration.toFixed(0) });
         }
     }
 

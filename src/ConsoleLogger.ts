@@ -31,9 +31,9 @@ export class ConsoleLogger extends TestMiddleware {
 
         if (test.hasPassed) {
             if (!this.errorsOnly)
-                console.log(chalk.green(`${indent(test)}✓ ${test.name}`));
+                console.log(chalk.green(`${indent(test)}✓ ${test.name}` + duration(test)));
         } else {
-            console.log(chalk.red(`${indent(test)}✗ ${test.name}`));
+            console.log(chalk.red(`${indent(test)}✗ ${test.name}` + duration(test)));
             if (test.error) {
                 let testFrame = stackFrames(test.error)
                     .find(f => this.testFiles.indexOf(f.file) >= 0);
@@ -49,6 +49,10 @@ export class ConsoleLogger extends TestMiddleware {
     finally(rootTests: ITest[], next: () => void) {
         console.log(`Passed: ${this.counter.passed}  Failed: ${this.counter.failed}  Total: ${this.counter.total}`)
     }
+}
+
+function duration(test: ITest) {
+    return chalk.grey(` ${test.duration < 1 ? '<1' : test.duration.toFixed(0)}ms`);
 }
 
 function stackFrames(error: Error) {

@@ -1,4 +1,5 @@
 import { ITestContext } from "./Middleware";
+import { performance } from "perf_hooks";
 
 export type TestFunction = () => any;
 
@@ -10,6 +11,7 @@ export interface ITest {
     error: any;
     children: ITest[];
     runCount: number;
+    duration: number;
     module: string;
     readonly depth: number;
     readonly hasPassed: boolean;
@@ -28,15 +30,20 @@ export class Test implements ITest {
     error: any;
     children: ITest[] = [];
     runCount: number = 0;
+    duration: number = 0;
 
     run(context: ITestContext) {
         this.runCount++;
+        let start = performance.now();
 
         try {
             this.testFn.call(context);
         } catch (error) {
             this.error = error;
         }
+
+        let end = performance.now();
+        this.duration += end - start;
     }
 
     get module(): string {
