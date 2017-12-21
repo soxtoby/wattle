@@ -1,42 +1,32 @@
 import { TestMiddleware, ITestContext } from "./Middleware";
 import { ITest } from "./Test";
-
-declare module './Test' {
-    interface ITest {
-        tcFlowId?: string;
-    }
-}
+import { relative } from 'path';
+import { cwd } from 'process';
 
 export class TeamCityLogger extends TestMiddleware {
-    private uid = 0;
-
     runModule(module: string, next: () => void): void {
-        this.log('testSuiteStarted', { name: module });
+        let relativeModule = relative(cwd(), module);
+        this.log('testSuiteStarted', { name: relativeModule });
         next();
-        this.log('testSuiteFinished', { name: module });
+        this.log('testSuiteFinished', { name: relativeModule });
     }
 
     run(test: ITest, context: ITestContext, next: () => void): void {
-        if (!test.tcFlowId) {
-            test.tcFlowId = `wattle${this.uid++}`;
-            this.log('testStarted', {}, test);
-        }
-
         next();
 
-        if (test.hasCompleted) {
-            if (test.error)
-                this.log('testFailed', { message: test.error.toString(), details: test.error.stack }, test);
+        if (test.hasCompleted && !test.children.length || test.error) {
+            let testName: string = test.fullName.join(', ');
 
-            this.log('testFinished', {}, test);
+            this.log('testStarted', { name: testName });
+
+            if (test.error)
+                this.log('testFailed', { name: testName, message: test.error.toString(), details: test.error.stack });
+
+            this.log('testFinished', { name: testName });
         }
     }
 
     private log(messageType: string, attrs: { [key: string]: string }, test?: ITest) {
-        if (test) {
-            attrs.name = test.name;
-            attrs.flowId = test.tcFlowId!;
-        }
         let attrsString = Object.keys(attrs)
             .map(key => `${key}='${escape(attrs[key])}'`)
             .join(' ');
@@ -44,7 +34,7 @@ export class TeamCityLogger extends TestMiddleware {
 
         function escape(value: string) {
             return value
-                .replace(/['\|\[\]]/g, "|\0")
+                .replace(/['\|\[\]]/g, "|$&")
                 .replace(/\n/g, '|n')
                 .replace(/\r/g, '|r');
         }
