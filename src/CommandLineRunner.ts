@@ -73,6 +73,9 @@ let middleware = middlewareModules
     .concat(logger, counter);
 
 new TestRunner(middleware).runTests(files)
+    .then(results => {
+        process.exit(results.every(r => r.hasPassed) ? 0 : 1);
+    })
     .catch(e => {
         console.error(e);
         process.exit(1);
