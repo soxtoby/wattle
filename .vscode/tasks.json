@@ -20,6 +20,7 @@
             "problemMatcher": [
                 {
                     "owner": "wattle",
+                    "source": "wattle",
                     "fileLocation": [
                         "relative",
                         "${workspaceFolder}"
@@ -35,6 +36,21 @@
                             "message": 3
                         }
                     ]
+                },
+                {
+                    "owner": "typescript",
+                    "source": "ts",
+                    "applyTo": "closedDocuments",
+                    "fileLocation": "relative",
+                    "pattern": [{
+                        "regexp": "TSError:"
+                    }, {
+                        "regexp": "(.*) \\((\\d+,\\d+)\\): (.*) \\(\\d+\\)$",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3,
+                        "loop": true
+                    }]
                 }
             ],
             "group": {
