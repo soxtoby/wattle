@@ -3,51 +3,61 @@ import * as path from 'path';
 import { ITestContext, TestMiddleware } from "./Middleware";
 import { ITest } from "./Test";
 import { Counter } from './Counter';
+import logUpdate = require('log-update');
+import { LogLevel } from './LogLevel';
 
 export class ConsoleLogger extends TestMiddleware {
     private counter = new Counter();
+    private lastModule = '';
 
     constructor(
-        private errorsOnly: boolean,
-        private quiet: boolean,
+        private logLevel: LogLevel,
+        private showStacks: boolean,
         private testFiles: string[]
     ) { super(); }
 
-    runModule(module: string, next: () => void): void {
-        if (!this.quiet)
-            console.log(module);
-        next();
-    }
-
     run(test: ITest, context: ITestContext, next: () => void) {
         this.counter.run(test, context, next);
+
         if (test.hasCompleted && !test.parent)
             this.printTestResult(test);
+
+        logUpdate(`Passed: ${this.counter.passed}  Failed: ${this.counter.failed}  Total: ${this.counter.total}`);
     }
 
     private printTestResult(test: ITest) {
-        if (this.quiet)
+        if (this.logLevel == LogLevel.quiet)
             return;
 
         if (test.hasPassed) {
-            if (!this.errorsOnly)
-                console.log(chalk.green(`${indent(test)}✓ ${test.name}` + duration(test)));
+            if (this.logLevel >= LogLevel.full) {
+                this.logModule(test);
+                logUpdate(chalk.green(`${indent(test)}✓ ${test.name}` + duration(test)));
+                logUpdate.done();
+            }
         } else {
-            console.log(chalk.red(`${indent(test)}✗ ${test.name}` + duration(test)));
+            this.logModule(test);
+            logUpdate(chalk.red(`${indent(test)}✗ ${test.name}` + duration(test)));
             if (test.error) {
                 let testFrame = stackFrames(test.error)
                     .find(f => this.testFiles.indexOf(f.file) >= 0);
+                let errorMessage = this.showStacks && test.error.stack || test.error;
                 if (testFrame)
-                    console.log(`${indent(test)}  ${path.relative('.', testFrame.file)}:${testFrame.line}  ${test.error}`);
+                    console.log(`${indent(test)}  ${path.relative('.', testFrame.file)}:${testFrame.line}  ${errorMessage}`);
                 else
-                    console.log(`${indent(test)}  ${test.error}`);
+                    console.log(`${indent(test)}  ${errorMessage}`);
             }
+            logUpdate.done();
         }
         test.children.forEach(t => this.printTestResult(t));
     }
 
-    finally(rootTests: ITest[], next: () => void) {
-        console.log(`Passed: ${this.counter.passed}  Failed: ${this.counter.failed}  Total: ${this.counter.total}`)
+    private logModule(test: ITest) {
+        if (test.module != this.lastModule) {
+            logUpdate(test.module);
+            logUpdate.done();
+            this.lastModule = test.module;
+        }
     }
 }
 

@@ -9,6 +9,7 @@ import { Test } from './Test';
 import { Counter } from './Counter';
 import { ConsoleLogger } from './ConsoleLogger';
 import { BuildServerLogger } from './BuildServerLogger';
+import { LogLevel } from './LogLevel';
 
 let argv = yargs
     .usage("$0 [--test-files] <test file globs> [options]")
@@ -28,17 +29,18 @@ let argv = yargs
             defaultDescription: 'none',
             describe: "Add one or more middleware modules."
         },
-        'e': {
-            alias: 'errors-only',
+        's': {
+            alias: 'show-stacks',
             type: 'boolean',
             default: false,
-            describe: "Only output errors. Useful when you've got a lot of tests."
+            describe: "Include stack traces in output."
         },
-        'q': {
-            alias: 'quiet',
-            type: 'boolean',
-            default: false,
-            describe: "Only output final results."
+        'v': {
+            alias: 'verbosity',
+            type: 'string',
+            default: 'default',
+            describe: "Logging verbosity.",
+            choices: ['quiet', 'default', 'full']
         },
         'b': {
             alias: 'build-server',
@@ -62,11 +64,13 @@ let files = testGlobs
     .reduce((r, fs) => r.concat(fs), [])
     .map(f => path.resolve(f));
 
+let logLevel = LogLevel[argv.verbosity as keyof typeof LogLevel];
+
 let counter = new Counter();
 
 let logger = argv.buildServer
     ? new BuildServerLogger()
-    : new ConsoleLogger(argv.errorsOnly, argv.quiet, files);
+    : new ConsoleLogger(logLevel, argv.showStacks, files);
 
 let middleware = middlewareModules
     .map(m => require(m).default)

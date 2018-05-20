@@ -3,10 +3,14 @@ import { ITest } from "./Test";
 export interface ITestContext { }
 
 export interface ITestMiddleware {
+    /** Adds a test to the list to be run. */
     collect(test: ITest, next: () => void): void;
+    /** Runs a test. Called for each level of the test branch. */
     run(test: ITest, context: ITestContext, next: () => void): void;
+    /** Runs the tests in a module. Called once per module. */
     runModule(module: string, next: () => void): void;
-    finally(rooTests: ITest[], next: () => void): void;
+    /** Called at the very end of the test run. */
+    finally(rootTests: ITest[], next: () => void): void;
 }
 
 export class TestMiddleware implements ITestMiddleware {
