@@ -10,11 +10,12 @@
     "wattle": "./lib/cmd.js"
   },
   "scripts": {
-    "build": "./node_modules/.bin/tsc",
+    "prepare": "./node_modules/.bin/tsc",
     "test": "node ./lib/CommandLineRunner.js ./tests/*"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
+    "@types/findup-sync": "^0.3.29",
     "@types/glob": "^5.0.33",
     "@types/log-update": "^2.0.0",
     "@types/node": "^9.6.1",
@@ -30,7 +31,6 @@
     "lib"
   ],
   "dependencies": {
-    "@types/findup-sync": "^0.3.29",
     "chalk": "^2.3.0",
     "findup-sync": "^2.0.0",
     "glob": "^7.1.2",
