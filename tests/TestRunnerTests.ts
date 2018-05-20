@@ -110,15 +110,7 @@ describe("running tests in test files", function () {
     Promise = mockPromises.getMockPromise(Promise);
 
     class Spy extends TestMiddleware {
-        collectedTests: Test[] = [];
-        collectedTestNames: string[] = [];
         runTests: string[] = [];
-
-        collect(test: Test, next: () => void) {
-            this.collectedTests.push(test);
-            this.collectedTestNames.push(test.name);
-            next();
-        }
 
         run(test: Test, context: ITestContext, next: () => void) {
             this.runTests.push(test.name);
@@ -130,14 +122,12 @@ describe("running tests in test files", function () {
     let sut = new TestRunner([spy]);
 
     when("test files are run", () => {
-        let testFiles = ['../tests/test-files/file1.ts', '../tests/test-files/file2.ts'];
+        let testFiles = ['../tests/test-files/file2.ts', '../tests/test-files/file1.ts'];
         testFiles.forEach(f => delete require.cache[require.resolve(f)]);
         sut.runTests(testFiles);
         mockPromises.tickAllTheWay();
 
-        then("files are loaded before tests are run", () => expect(spy.collectedTestNames).to.have.members(['file1', 'file2', 'file1 test', 'file2 test']));
-
-        then("all tests are run", () => expect(spy.runTests).to.have.members([
+        then("modules are run in alphabetic order", () => expect(spy.runTests).to.have.ordered.members([
             'file1', 'file1 test',
             'file2', 'file2 test'
         ]));

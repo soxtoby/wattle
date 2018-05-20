@@ -33,11 +33,11 @@ export class TestRunner {
 
 class TestRun extends TestMiddleware {
     public rootTests: ITest[] = [];
-    private rootTestsByModule: { [module: string]: ITest[] } = {};
     private currentTest?: ITest;
     private currentTestContext?: ITestContext;
     private isReturningFromTest: boolean = false;
     private importingModule?: string;
+    private currentModuleTests: ITest[] = [];
 
     constructor(
         private middleware: ITestMiddleware[] = []
@@ -47,9 +47,7 @@ class TestRun extends TestMiddleware {
     }
 
     async runTests(testModules: string[]) {
-        // Load test modules first before running tests
-        // VS Code breakpoints don't work if tests are run during first load
-        for (let module of testModules) {
+        for (let module of testModules.sort()) {
             try {
                 this.importingModule = module;
                 await import(module);
@@ -58,17 +56,14 @@ class TestRun extends TestMiddleware {
                 failedModule.error = error;
                 this.doCollect(failedModule);
                 this.doRun(failedModule, {});
-                this.rootTests.push(failedModule)
+                this.rootTests.push(failedModule);
             } finally {
                 delete this.importingModule;
             }
-        }
 
-        for (let test of this.rootTests)
-            (this.rootTestsByModule[test.module] || (this.rootTestsByModule[test.module] = [])).push(test);
-
-        for (let module of Object.keys(this.rootTestsByModule).sort())
+            this.currentModuleTests = this.rootTests.filter(t => t.module == module);
             this.doRunModule(module);
+        }
 
         this.doFinally(this.rootTests);
 
@@ -81,7 +76,7 @@ class TestRun extends TestMiddleware {
     }
 
     runModule(module: string, next: () => void) {
-        for (let test of this.rootTestsByModule[module] || [])
+        for (let test of this.currentModuleTests)
             this.runTest(test);
     }
 
