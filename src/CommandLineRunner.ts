@@ -1,17 +1,19 @@
 import 'ts-node/register';
 import * as yargs from 'yargs';
-import * as glob from 'glob';
-import * as path from 'path';
-import chalk from 'chalk';
-import { TestRunner } from './TestRunner';
-import { ITestMiddleware, ITestContext } from './Middleware';
-import { Test } from './Test';
-import { Counter } from './Counter';
-import { ConsoleLogger } from './ConsoleLogger';
-import { BuildServerLogger } from './BuildServerLogger';
+import { getLogger, loadMiddleware, resolveTestFiles } from './CommandLineHelpers';
 import { LogLevel } from './LogLevel';
+import { TestRunner } from './TestRunner';
 
-let argv = yargs
+interface IArgs {
+    _: string[];
+    testFiles: string[];
+    middleware: string[];
+    showStacks: boolean;
+    verbosity: keyof typeof LogLevel;
+    buildServer: boolean;
+}
+
+let args = yargs
     .usage("$0 [--test-files] <test file globs> [options]")
     .options({
         't': {
@@ -49,34 +51,14 @@ let argv = yargs
             describe: "Output results in a format suitable for a build server."
         }
     })
-    .argv;
+    .argv as any as IArgs;
 
-let fileGlobs = argv.testFiles as string[]
-    || argv._.length && argv._
-    || ['**/*.@(ts|tsx|js|jsx)', '!node_modules/**'];
-fileGlobs.push('!./**/*.d.ts'); // No one wants to test .d.ts files
-let testGlobs = fileGlobs.filter(g => g[0] != '!');
-let ignoreGlobs = fileGlobs.filter(g => g[0] == '!').map(g => g.substring(1));
-let middlewareModules = argv.middleware as string[];
+let testFiles = resolveTestFiles(args.testFiles, args._);
 
-let files = testGlobs
-    .map(g => glob.sync(g, { nodir: true, ignore: ignoreGlobs }))
-    .reduce((r, fs) => r.concat(fs), [])
-    .map(f => path.resolve(f));
+let middleware = loadMiddleware(args.middleware)
+    .concat(getLogger(args.buildServer, LogLevel[args.verbosity], args.showStacks, testFiles));
 
-let logLevel = LogLevel[argv.verbosity as keyof typeof LogLevel];
-
-let counter = new Counter();
-
-let logger = argv.buildServer
-    ? new BuildServerLogger()
-    : new ConsoleLogger(logLevel, argv.showStacks, files);
-
-let middleware = middlewareModules
-    .map(m => require(m).default)
-    .concat(logger, counter);
-
-new TestRunner(middleware).runTests(files)
+new TestRunner(middleware).runTests(testFiles)
     .then(results => {
         process.exit(results.every(r => r.hasPassed) ? 0 : 1);
     })

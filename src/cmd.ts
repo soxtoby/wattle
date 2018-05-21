@@ -6,4 +6,4 @@ let localCommandLineRunner = findup('node_modules/wattle/lib/CommandLineRunner.j
 if (!localCommandLineRunner)
     throw new Error("Couldn't find local wattle installation");
 
-import(localCommandLineRunner);
+require(localCommandLineRunner);

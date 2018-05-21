@@ -25,3 +25,8 @@ export function bindMiddlewareFunction(selectMiddlewareFunction: (middleware: IT
         ? selectMiddlewareFunction(remainingMiddleware[0]).bind(remainingMiddleware[0], ...args, bindMiddlewareFunction(selectMiddlewareFunction, remainingMiddleware.slice(1), ...args))
         : () => { };
 }
+
+export function isMiddleware(value: any): value is ITestMiddleware {
+    return value
+        && Object.keys(TestMiddleware.prototype).every(m => typeof value[m] == 'function');
+}
