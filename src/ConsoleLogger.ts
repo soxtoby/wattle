@@ -22,8 +22,16 @@ export class ConsoleLogger extends TestMiddleware {
 
         if (test.hasCompleted && !test.parent)
             this.printTestResult(test);
+            
+        log(this.counterMessage, true);
+    }
 
-        logUpdate(`Passed: ${this.counter.passed}  Failed: ${this.counter.failed}  Total: ${this.counter.total}`);
+    finally(rootTests: ITest[], next: () => void) {
+        log(this.counterMessage);
+    }
+
+    private get counterMessage() {
+        return `Passed: ${this.counter.passed}  Failed: ${this.counter.failed}  Total: ${this.counter.total}`;
     }
 
     private printTestResult(test: ITest) {
@@ -33,32 +41,40 @@ export class ConsoleLogger extends TestMiddleware {
         if (test.hasPassed) {
             if (this.logLevel >= LogLevel.full) {
                 this.logModule(test);
-                logUpdate(chalk.green(`${indent(test)}✓ ${test.name}` + duration(test)));
-                logUpdate.done();
+                log(chalk.green(`${indent(test)}✓ ${test.name}` + duration(test)));
             }
         } else {
             this.logModule(test);
-            logUpdate(chalk.red(`${indent(test)}✗ ${test.name}` + duration(test)));
+            log(chalk.red(`${indent(test)}✗ ${test.name}` + duration(test)));
             if (test.error) {
                 let testFrame = stackFrames(test.error)
                     .find(f => this.testFiles.indexOf(f.file) >= 0);
                 let errorMessage = this.showStacks && test.error.stack || test.error;
                 if (testFrame)
-                    console.log(`${indent(test)}  ${path.relative('.', testFrame.file)}:${testFrame.line}  ${errorMessage}`);
+                    log(`${indent(test)}  ${path.relative('.', testFrame.file)}:${testFrame.line}  ${errorMessage}`);
                 else
-                    console.log(`${indent(test)}  ${errorMessage}`);
+                    log(`${indent(test)}  ${errorMessage}`);
             }
-            logUpdate.done();
         }
         test.children.forEach(t => this.printTestResult(t));
     }
 
     private logModule(test: ITest) {
         if (test.module != this.lastModule) {
-            logUpdate(test.module);
-            logUpdate.done();
+            log(test.module);
             this.lastModule = test.module;
         }
+    }
+}
+
+function log(message: string, updateOnly: boolean = false) {
+    if (process.stdout.isTTY) {
+        logUpdate(message);
+        if (!updateOnly)
+            logUpdate.done();
+    } else {
+        if (!updateOnly)
+            console.log(message);
     }
 }
 

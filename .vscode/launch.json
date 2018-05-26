@@ -9,6 +9,7 @@
             "request": "launch",
             "name": "Run tests",
             "program": "${workspaceFolder}/lib/CommandLineRunner.js",
+            "console": "integratedTerminal",
             "args": [
                 "./tests/*"
             ]
