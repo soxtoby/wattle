@@ -1,3 +1,4 @@
+import * as console from 'console';
 import * as glob from 'glob';
 import * as path from 'path';
 import { BuildServerLogger } from "./BuildServerLogger";

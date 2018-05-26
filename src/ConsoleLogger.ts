@@ -5,6 +5,7 @@ import { ITest } from "./Test";
 import { Counter } from './Counter';
 import logUpdate = require('log-update');
 import { LogLevel } from './LogLevel';
+import * as console from 'console';
 
 export class ConsoleLogger extends TestMiddleware {
     private counter = new Counter();

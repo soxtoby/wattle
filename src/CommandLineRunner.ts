@@ -1,3 +1,4 @@
+import * as console from 'console';
 import 'ts-node/register';
 import * as yargs from 'yargs';
 import { getLogger, loadMiddleware, resolveTestFiles } from './CommandLineHelpers';

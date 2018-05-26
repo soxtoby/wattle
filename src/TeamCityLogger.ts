@@ -1,7 +1,8 @@
-import { TestMiddleware, ITestContext } from "./Middleware";
-import { ITest } from "./Test";
+import * as console from 'console';
 import { relative } from 'path';
 import { cwd } from 'process';
+import { ITestContext, TestMiddleware } from "./Middleware";
+import { ITest } from "./Test";
 
 export class TeamCityLogger extends TestMiddleware {
     runModule(module: string, next: () => void): void {
