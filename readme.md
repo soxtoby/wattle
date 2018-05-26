@@ -18,7 +18,7 @@ yarn add --dev wattle
 yarn global add wattle
 ```
 
-In your test test files, import the test functions:
+In your test files, import the test functions:
 
 ```js
 import { describe, when, then, it, test } from 'wattle';
@@ -62,10 +62,10 @@ wattle [-t|--test-files] <test file globs> [options]
 
 Option                 |Description
 -----------------------|-----------
-`-t`, `--test-files`   | One or more globs of test files to run
-`-m`, `--middleware`   | Add one or more middleware modules
-`-e`, `--errors-only`  | Only output errors. Useful when you've got a lot of tests.
-`-q`, `--quiet`        | Only output final results.
+`-t`, `--test-files`   | One or more globs of test files to run.
+`-m`, `--middleware`   | Add one or more middleware modules.
+`-s`, `--show-stacks`  | Include stack traces in output.
+`-v`, `--verbosity`    | Logging verbosity (`quiet`, `default`, or `full`).
 `-b`, `--build-server` | Output results in a format suitable for a build server. Currently supports TeamCity, AppVeyor, and TFS/VSTS.
 
 ## Build Server Support
@@ -73,3 +73,22 @@ With the `--build-server` option, test results will be automatically logged to T
 
 ## Visual Studio Code Integration
 There are example launch and task configurations in the `examples` folder that you can use to get started. The task configuration includes a problem matcher will will show test failures as errors in the code.
+
+## Middleware
+You can specify custom middleware with the `--middleware` option. Middleware modules should export an `ITestMiddleware` object as their default export. The easiest way to implement middleware is to extend `TestMiddleware`:
+
+```ts
+// CustomMiddleware.ts
+import { TestMiddleware } from 'wattle';
+
+class CustomMiddleware extends TestMiddleware {
+    // Override one or more methods here
+}
+
+export default new CustomMiddleware();
+```
+
+and then use it with:
+```
+wattle -m ./CustomMiddleware
+```
