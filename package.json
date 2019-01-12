@@ -1,6 +1,6 @@
 {
   "name": "wattle",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Hierarchical test runner",
   "main": "lib/index",
   "types": "lib/index",

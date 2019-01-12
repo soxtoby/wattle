@@ -1,5 +1,5 @@
 import * as console from 'console';
-import 'ts-node/register';
+import { register as registerTs } from 'ts-node';
 import * as yargs from 'yargs';
 import { getLogger, loadMiddleware, resolveTestFiles } from './CommandLineHelpers';
 import { LogLevel } from './LogLevel';
@@ -12,6 +12,7 @@ interface IArgs {
     showStacks: boolean;
     verbosity: keyof typeof LogLevel;
     buildServer: boolean;
+    tsProject: string;
 }
 
 let args = yargs
@@ -50,9 +51,15 @@ let args = yargs
             type: 'boolean',
             default: false,
             describe: "Output results in a format suitable for a build server."
+        },
+        'ts-project': {
+            type: 'string',
+            describe: "Path to custom tsconfig file."
         }
     })
     .argv as any as IArgs;
+
+registerTs(args.tsProject ? { project: args.tsProject } : undefined);
 
 let testFiles = resolveTestFiles(args.testFiles, args._);
 

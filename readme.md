@@ -67,6 +67,7 @@ Option                 |Description
 `-s`, `--show-stacks`  | Include stack traces in output.
 `-v`, `--verbosity`    | Logging verbosity (`quiet`, `default`, or `full`).
 `-b`, `--build-server` | Output results in a format suitable for a build server. Currently supports TeamCity, AppVeyor, and TFS/VSTS.
+`--ts-project`         | Path to custom tsconfig file.
 
 ## Build Server Support
 With the `--build-server` option, test results will be automatically logged to TeamCity and AppVeyor. For TFS/VSTS, wattle will create a `wattle-results.trx` file that needs to be published with a **Publish Test Results** build step.
