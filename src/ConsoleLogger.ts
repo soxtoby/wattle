@@ -22,7 +22,7 @@ export class ConsoleLogger extends TestMiddleware {
 
         if (test.hasCompleted && !test.parent)
             this.printTestResult(test);
-            
+
         log(this.counterMessage, true);
     }
 
@@ -50,7 +50,7 @@ export class ConsoleLogger extends TestMiddleware {
                 let testFrame = stackFrames(test.error)
                     .find(f => this.testFiles.indexOf(f.file) >= 0);
                 let errorMessage = this.showStacks && test.error.stack || test.error;
-                if (testFrame)
+                if (testFrame && testFrame.file)
                     log(`${indent(test)}  ${path.relative('.', testFrame.file)}:${testFrame.line}  ${errorMessage}`);
                 else
                     log(`${indent(test)}  ${errorMessage}`);
