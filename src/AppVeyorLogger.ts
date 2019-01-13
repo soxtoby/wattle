@@ -1,12 +1,10 @@
-import { TestMiddleware, ITestContext } from "./Middleware";
-import { ITest } from "./Test";
 import { spawn } from "child_process";
+import { ITestInfo } from "./Test";
+import { TestLogger } from "./TestLogger";
 
-export class AppVeyorLogger extends TestMiddleware {
-    run(test: ITest, context: ITestContext, next: () => void): void {
-        next();
-
-        if (!test.children.length) {
+export class AppVeyorLogger extends TestLogger {
+    testCompleted(test: ITestInfo): void {
+        if (!test.children.length || test.error) {
             if (process.env.APPVEYOR_API_URL) {
                 spawn('appveyor', [
                     'AddTest',
@@ -15,11 +13,9 @@ export class AppVeyorLogger extends TestMiddleware {
                     '-FileName', test.module!,
                     '-Outcome', test.hasPassed ? 'Passed' : 'Failed',
                     '-Duration', test.duration.toFixed(0),
-                    ...(test.hasPassed ? [] : ['-ErrorMessage', test.error.toString(), '-ErrorStackTrace', test.error.stack])
+                    ...(test.hasPassed ? [] : ['-ErrorMessage', test.error!.message, '-ErrorStackTrace', test.error!.stack])
                 ]);
             }
         }
     }
 }
-
-export default new AppVeyorLogger();

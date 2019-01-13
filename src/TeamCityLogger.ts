@@ -1,30 +1,27 @@
 import * as console from 'console';
 import { relative } from 'path';
 import { cwd } from 'process';
-import { ITestContext, TestMiddleware } from "./Middleware";
-import { ITest } from "./Test";
+import { ITest, ITestInfo } from "./Test";
+import { TestLogger } from './TestLogger';
 
-export class TeamCityLogger extends TestMiddleware {
-    runModule(module: string, next: () => void): void {
-        let relativeModule = relative(cwd(), module);
-        this.log('testSuiteStarted', { name: relativeModule });
-        next();
-        this.log('testSuiteFinished', { name: relativeModule });
+export class TeamCityLogger extends TestLogger {
+    moduleStarted(module: string): void {
+        this.log('testSuiteStarted', { name: relative(cwd(), module) });
     }
 
-    run(test: ITest, context: ITestContext, next: () => void): void {
-        next();
+    moduleCompleted(module: string, tests: ITestInfo[]): void {
+        this.log('testSuiteFinished', { name: relative(cwd(), module) });
+    }
 
-        if (test.hasCompleted && !test.children.length || test.error) {
-            let testName: string = test.fullName.join(', ');
+    testCompleted(test: ITestInfo): void {
+        let testName = relative(cwd(), test.module) + ':' + test.fullName.join(', ');
 
-            this.log('testStarted', { name: testName, captureStandardOutput: 'true' });
+        this.log('testStarted', { name: testName });
 
-            if (test.error)
-                this.log('testFailed', { name: testName, message: test.error.toString(), details: test.error.stack });
+        if (test.error)
+            this.log('testFailed', { name: testName, message: test.error.message, details: test.error.stack });
 
-            this.log('testFinished', { name: testName, duration: test.duration.toFixed(0) });
-        }
+        this.log('testFinished', { name: testName, duration: test.duration.toFixed(0) });
     }
 
     private log(messageType: string, attrs: { [key: string]: string }, test?: ITest) {
@@ -41,5 +38,3 @@ export class TeamCityLogger extends TestMiddleware {
         }
     }
 }
-
-export default new TeamCityLogger();

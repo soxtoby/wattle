@@ -1,80 +1,69 @@
-import { Test, TestFunction, ITest } from "./Test";
-import { ITestMiddleware, ITestContext, bindMiddlewareFunction, TestMiddleware } from "./Middleware";
+import { performance } from "perf_hooks";
+import { bindMiddlewareFunction, ITestContext, ITestMiddleware } from "./Middleware";
+import { ITest, Test, TestFunction } from "./Test";
+import { TestEvent } from "./TestEvents";
 
-let currentTestRun: TestRun | null = null;
+let currentTestRunner: TestRunner | null = null;
 
 export class TestRunner {
-    private run: TestRun;
-
-    constructor(middleware: ITestMiddleware[] = []) {
-        this.run = new TestRun(middleware);
-    }
-
-    async runTests(testModules: string[]) {
-        if (currentTestRun != null)
-            throw new Error("Test run already in progress");
-
-        currentTestRun = this.run;
-
-        let results = await currentTestRun.runTests(testModules);
-
-        currentTestRun = null;
-
-        return results;
-    }
-
-    test(name: string, testFn: TestFunction) {
-        return this.run.test(name, testFn);
-    }
-
-    get rootTests() { return this.run.rootTests; }
-}
-
-class TestRun extends TestMiddleware {
-    public rootTests: ITest[] = [];
+    private middleware: ITestMiddleware[];
     private currentTest?: ITest;
     private currentTestContext?: ITestContext;
     private isReturningFromTest: boolean = false;
     private importingModule?: string;
-    private currentModuleTests: ITest[] = [];
+    private allModuleTests: { [module: string]: ITest[] } = {};
+    private currentModuleTests: ITest[];
 
-    constructor(
-        private middleware: ITestMiddleware[] = []
-    ) {
-        super();
-        this.middleware = this.middleware.concat([this]);
+    constructor(middleware: ITestMiddleware[] = [], private log: (event: TestEvent) => void = () => { }) {
+        this.currentModuleTests = this.allModuleTests[''] = [];
+        this.middleware = middleware.concat(this);
     }
 
-    async runTests(testModules: string[]) {
-        for (let module of testModules.sort()) {
-            try {
-                this.importingModule = module;
-                await import(module);
-            } catch (error) {
-                let failedModule = new Test(module, () => { });
-                failedModule.error = error;
-                this.doCollect(failedModule);
-                this.doRun(failedModule, {});
-                this.rootTests.push(failedModule);
-            } finally {
-                delete this.importingModule;
-            }
+    runTests(testModules: string[]) {
+        if (currentTestRunner != null)
+            throw new Error("Test run already in progress");
 
-            this.currentModuleTests = this.rootTests.filter(t => t.module == module);
+        currentTestRunner = this;
+
+        for (let module of testModules.sort())
             this.doRunModule(module);
-        }
 
-        this.doFinally(this.rootTests);
+        currentTestRunner = null;
 
-        return this.rootTests;
+        return this.allTests;
+    }
+
+    get allTests() {
+        return Object.entries(this.allModuleTests)
+            .reduce((all, [, tests]) => all.concat(tests), [] as ITest[]);
     }
 
     private doRunModule(module: string) {
+        this.log({ type: 'ModuleStarted', module });
+
         let runModuleFn = bindMiddlewareFunction(m => m.runModule, this.middleware, module);
         runModuleFn();
+
+        this.log({ type: 'ModuleCompleted', module });
     }
 
     runModule(module: string, next: () => void) {
+        this.currentModuleTests = this.allModuleTests[module] = [];
+        this.importingModule = module;
+        delete require.cache[require.resolve(module)];
+
+        try {
+            require(module);
+        } catch (error) {
+            let failedModule = new Test(module, () => { });
+            failedModule.error = error;
+            this.doCollect(failedModule);
+            this.doRun(failedModule, {});
+            this.currentModuleTests.push(failedModule);
+        } finally {
+            delete this.importingModule;
+        }
+
         for (let test of this.currentModuleTests)
             this.runTest(test);
     }
@@ -107,24 +96,26 @@ class TestRun extends TestMiddleware {
         collectFn();
     }
 
+    collect(test: ITest, next: () => void) {
+        this.log({ type: 'TestCollected', module: this.importingModule, path: test.fullName.slice(0, -1), name: test.name })
+        this.currentTestList.push(test);
+    }
+
     private doRun(test: ITest, context: ITestContext) {
         let runFn = bindMiddlewareFunction(m => m.run, this.middleware, test, context);
         runFn();
-    }
-
-    private doFinally(rootTests: ITest[]) {
-        let finallyFn = bindMiddlewareFunction(m => m.finally, this.middleware, rootTests);
-        finallyFn();
-    }
-
-    collect(test: ITest, next: () => void) {
-        this.currentTestList.push(test);
     }
 
     run(test: ITest, context: ITestContext, next: () => void) {
         this.currentTest = test;
 
         test.run(context);
+        this.log({
+            type: 'TestRun',
+            path: test.fullName,
+            duration: test.duration,
+            error: test.error && { message: test.error.message, stack: test.error.stack }
+        });
 
         this.currentTest = test.parent;
         if (!this.currentTest)
@@ -134,12 +125,12 @@ class TestRun extends TestMiddleware {
 
     private get currentTestList() {
         return this.currentTest && this.currentTest.children
-            || this.rootTests;
+            || this.currentModuleTests;
     }
 }
 
 export function runTestWithCurrentRunner(name: string, testFn: TestFunction) {
-    if (!currentTestRun)
+    if (!currentTestRunner)
         throw new Error("Trying to run tests without a test runner");
-    currentTestRun.test(name, testFn);
+    currentTestRunner.test(name, testFn);
 }

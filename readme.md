@@ -60,20 +60,21 @@ To run the tests, just run the `wattle` command from the folder containing your 
 wattle [-t|--test-files] <test file globs> [options]
 ```
 
-Option                 |Description
------------------------|-----------
-`-t`, `--test-files`   | One or more globs of test files to run.
-`-m`, `--middleware`   | Add one or more middleware modules.
-`-s`, `--show-stacks`  | Include stack traces in output.
-`-v`, `--verbosity`    | Logging verbosity (`quiet`, `default`, or `full`).
-`-b`, `--build-server` | Output results in a format suitable for a build server. Currently supports TeamCity, AppVeyor, and TFS/VSTS.
-`--ts-project`         | Path to custom tsconfig file.
+Option                  |Description
+------------------------|-----------
+`-t`, `--test-files`    | One or more globs of test files to run.
+`-m`, `--middleware`    | Add one or more middleware modules.
+`-s`, `--show-stacks`   | Include stack traces in output.
+`-v`, `--verbosity`     | Logging verbosity (`quiet`, `default`, or `full`).
+`-b`, `--build-server`  | Output results in a format suitable for a build server. Currently supports TeamCity, AppVeyor, and TFS/VSTS.
+`-p`, `--process-count` | Number of test processes to use. If 0 is specified, tests will be run synchronously in the main process.
+`--ts-project`          | Path to custom tsconfig file.
 
 ## Build Server Support
 With the `--build-server` option, test results will be automatically logged to TeamCity and AppVeyor. For TFS/VSTS, wattle will create a `wattle-results.trx` file that needs to be published with a **Publish Test Results** build step.
 
 ## Visual Studio Code Integration
-There are example launch and task configurations in the `examples` folder that you can use to get started. The task configuration includes a problem matcher will will show test failures as errors in the code.
+There are example launch and task configurations in the `examples` folder that you can use to get started. The task configuration includes a problem matcher will will show test failures as errors in the code. Example snippets are also included in the `examples` folder, which can make writing tests a lot faster.
 
 ## Middleware
 You can specify custom middleware with the `--middleware` option. Middleware modules should export an `ITestMiddleware` object as their default export. The easiest way to implement middleware is to extend `TestMiddleware`:

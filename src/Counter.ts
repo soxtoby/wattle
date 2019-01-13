@@ -1,21 +1,18 @@
-import { TestMiddleware, ITestContext } from "./Middleware";
-import { Test } from "./Test";
+import { ITestInfo } from "./Test";
+import { TestLogger } from "./TestLogger";
 
-export class Counter extends TestMiddleware {
+export class Counter extends TestLogger {
     passed = 0;
     failed = 0;
     total = 0;
 
-    run(test: Test, context: ITestContext, next: () => void) {
-        next();
-        if (test.hasCompleted && !test.children.length) {
+    testCompleted(test: ITestInfo) {
+        if (!test.children.length) {
             this.total++;
             if (test.hasPassed)
-            this.passed++;
+                this.passed++;
             else
                 this.failed++;
         }
     }
 }
-
-export default new Counter();

@@ -9,15 +9,12 @@ export interface ITestMiddleware {
     run(test: ITest, context: ITestContext, next: () => void): void;
     /** Runs the tests in a module. Called once per module. */
     runModule(module: string, next: () => void): void;
-    /** Called at the very end of the test run. */
-    finally(rootTests: ITest[], next: () => void): void;
 }
 
 export class TestMiddleware implements ITestMiddleware {
     collect(test: ITest, next: () => void) { return next(); }
     run(test: ITest, context: ITestContext, next: () => void) { return next(); }
     runModule(module: string, next: () => void) { next(); }
-    finally(rootTests: ITest[], next: () => void) { next(); }
 }
 
 export function bindMiddlewareFunction(selectMiddlewareFunction: (middleware: ITestMiddleware) => Function, remainingMiddleware: ITestMiddleware[], ...args: any[]): () => void {

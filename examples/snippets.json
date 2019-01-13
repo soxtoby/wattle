@@ -1,0 +1,36 @@
+{
+	"Wattle 'describe'": {
+		"prefix": "desc",
+		"body": [
+			"describe(\"${1:subject}\", function () {",
+			"	$0",
+			"});"
+		]
+	},
+	"Wattle 'when'": {
+		"prefix": "when",
+		"body": [
+			"when(\"${1:condition}\", () => {",
+			"	$0",
+			"});"
+		]
+	},
+	"Wattle 'then'": {
+		"prefix": "then",
+		"body": [
+			"then(\"${1:assertion}\", () => $0);"
+		]
+	},
+	"Wattle 'it'": {
+		"prefix": "it",
+		"body": [
+			"it(\"${1:assertion}\", () => $0);"
+		]
+	},
+	"Wattle 'test'": {
+		"prefix": "test",
+		"body": [
+			"test(\"${1:assertion}\", () => $0);"
+		]
+	}
+}

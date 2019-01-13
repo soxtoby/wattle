@@ -3,48 +3,40 @@ import { performance } from "perf_hooks";
 
 export type TestFunction = (this: ITestContext) => any;
 
-export interface ITest {
+export interface ITestBase<T> {
     name: string;
-    fullName: string[];
-    testFn: TestFunction;
-    parent?: ITest;
-    error: any;
-    children: ITest[];
+    readonly fullName: string[];
+    error?: { message: string, stack: string };
     runCount: number;
     duration: number;
     module: string;
     readonly depth: number;
     readonly hasPassed: boolean;
     readonly hasCompleted: boolean;
+    parent?: T;
+    readonly children: T[];
+}
+
+/** Read-only information about a test  */
+export interface ITestInfo extends Readonly<ITestBase<ITestInfo>> { }
+
+/** Run-time test object */
+export interface ITest extends ITestBase<ITest> {
+    testFn: TestFunction;
     run(context: ITestContext): void;
 }
 
-export class Test implements ITest {
+export class TestBase<T extends ITestBase<T>> implements ITestBase<T> {
     constructor(
         public name: string,
-        public testFn: TestFunction,
-        public parent?: ITest,
-        private _module?: string
+        public parent?: T,
+        protected _module?: string
     ) { }
 
-    error: any;
-    children: ITest[] = [];
+    readonly children: T[] = [];
+    error?: { message: string, stack: string };
     runCount: number = 0;
     duration: number = 0;
-
-    run(context: ITestContext) {
-        this.runCount++;
-        let start = performance.now();
-
-        try {
-            this.testFn.call(context);
-        } catch (error) {
-            this.error = error;
-        }
-
-        let end = performance.now();
-        this.duration += end - start;
-    }
 
     get module(): string {
         return this._module
@@ -76,5 +68,32 @@ export class Test implements ITest {
         return !!this.runCount
             && (!!this.error
                 || this.children.every(c => c.hasCompleted));
+    }
+}
+
+export class TestInfo extends TestBase<TestInfo> { }
+
+export class Test extends TestBase<ITest> {
+    constructor(
+        name: string,
+        public testFn: TestFunction,
+        parent?: ITest,
+        _module?: string
+    ) {
+        super(name, parent, _module);
+    }
+
+    run(context: ITestContext) {
+        this.runCount++;
+        let start = performance.now();
+
+        try {
+            this.testFn.call(context);
+        } catch (error) {
+            this.error = error;
+        }
+
+        let end = performance.now();
+        this.duration += end - start;
     }
 }

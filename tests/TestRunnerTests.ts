@@ -1,14 +1,13 @@
 /// <reference path="./mock-promises.d.ts" />
-import './setup';
-import { describe, when, then, it, ITestContext } from '../lib/index';
-import * as sinon from 'sinon';
-import { SinonStub, SinonSpy } from 'sinon';
 import { expect } from 'chai';
-import { ITestMiddleware } from '../src/Middleware';
-import { Test } from '../src/test';
-import { TestRunner } from '../src/TestRunner';
 import * as mockPromises from 'mock-promises';
-import { TestMiddleware } from '../lib/Middleware';
+import * as sinon from 'sinon';
+import { SinonSpy, SinonStub } from 'sinon';
+import { describe, then, when } from '../lib';
+import { TestMiddleware, ITestContext } from '../src/Middleware';
+import { Test, ITest } from '../src/test';
+import { TestRunner } from '../src/TestRunner';
+import './setup';
 
 describe("running individual tests", () => {
     let sut = new TestRunner();
@@ -28,12 +27,12 @@ describe("running individual tests", () => {
             then("second test is completed", () => expect(result2.hasCompleted).to.be.true);
             then("second test run once", () => expect(result2.runCount).to.equal(1));
             then("second test run with a different test context", () => expect(testFunction2).to.not.have.been.calledOn(testFunction.firstCall.thisValue));
-            then("root tests contain both tests", () => expect(sut.rootTests).to.have.members([result, result2]));
+            then("list of tests contains both tests", () => expect(sut.allTests).to.have.members([result, result2]));
         });
     });
 
     when("running a test method with an inner test method call", () => {
-        let innerResult: Test;
+        let innerResult: ITest;
         let innerTestFunction = sinon.stub();
         let testFunction = () => {
             innerResult = sut.test("Inner Test", innerTestFunction)!;
@@ -48,11 +47,11 @@ describe("running individual tests", () => {
         then("inner function gets same test context as outer", () =>
             expect(innerTestFunction).to.have.been.calledOn((testFunction as SinonStub).firstCall.thisValue));
 
-        then("root tests contain just the outer test", () => expect(sut.rootTests).to.have.members([result]));
+        then("root tests contain just the outer test", () => expect(sut.allTests).to.have.members([result]));
     });
 
     when("running a test method with 2 inner test method calls", () => {
-        let innerResult: Test, innerResult2: Test;
+        let innerResult: ITest, innerResult2: ITest;
         let innerFunction1 = sinon.stub();
         let innerFunction2 = sinon.stub();
         let testFunction = () => {
@@ -78,7 +77,7 @@ describe("running individual tests", () => {
     });
 
     when("running a test method with 3 inner test method calls", () => {
-        let innerResult: Test, innerResult2: Test, innerResult3: Test;
+        let innerResult: ITest, innerResult2: ITest, innerResult3: ITest;
         let result = sut.test("Outer Test", () => {
             innerResult = sut.test("Inner Test", () => { })!;
             innerResult2 = sut.test("Inner Test 2", () => { })!;
@@ -91,7 +90,7 @@ describe("running individual tests", () => {
     });
 
     when("running a test method with a double nested test method call", () => {
-        let innerResult: Test, innerInnerResult: Test, innerInnerResult2: Test;
+        let innerResult: ITest, innerInnerResult: ITest, innerInnerResult2: ITest;
         let result = sut.test("Outer Test", () => {
             innerResult = sut.test("Inner Test", () => {
                 innerInnerResult = sut.test("Inner Inner Test", () => { })!;

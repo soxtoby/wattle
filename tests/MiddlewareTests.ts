@@ -26,8 +26,8 @@ describe("middleware", function () {
     });
 
     describe("binding", function () {
-        let middleware1: ITestMiddleware = { collect: sinon.stub(), run: sinon.stub(), runModule: sinon.stub(), finally: sinon.stub() };
-        let middleware2: ITestMiddleware = { collect: sinon.stub(), run: sinon.stub(), runModule: sinon.stub(), finally: sinon.stub() };
+        let middleware1: ITestMiddleware = { collect: sinon.stub(), run: sinon.stub(), runModule: sinon.stub() };
+        let middleware2: ITestMiddleware = { collect: sinon.stub(), run: sinon.stub(), runModule: sinon.stub() };
 
         let test = new Test("name", sinon.stub());
         let context = {};

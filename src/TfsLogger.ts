@@ -1,16 +1,14 @@
-import * as trx from 'node-trx';
-import { TestMiddleware } from "./Middleware";
-import { ITest } from "./Test";
 import { writeFileSync } from 'fs';
+import * as trx from 'node-trx';
 import { UnitTest } from 'node-trx';
+import * as os from 'os';
 import { relative } from 'path';
 import * as process from 'process';
-import * as os from 'os';
+import { ITestInfo } from "./Test";
+import { TestLogger } from './TestLogger';
 
-export class TfsLogger extends TestMiddleware {
-    finally(rootTests: ITest[], next: () => void) {
-        next();
-
+export class TfsLogger extends TestLogger {
+    finally(rootTests: ITestInfo[]) {
         let cwd = process.cwd();
         let hostname = os.hostname();
 
@@ -20,7 +18,7 @@ export class TfsLogger extends TestMiddleware {
         rootTests.forEach(addResults);
         writeFileSync('./wattle-results.trx', testRun.toXml());
 
-        function addResults(test: ITest) {
+        function addResults(test: ITestInfo) {
             if (test.children.length)
                 test.children.forEach(addResults);
             else
@@ -50,5 +48,3 @@ export class TfsLogger extends TestMiddleware {
         }
     }
 }
-
-export default new TfsLogger();

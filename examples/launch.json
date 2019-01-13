@@ -7,7 +7,10 @@
             "name": "Run tests",
             "program": "${workspaceFolder}/node_modules/wattle/lib/cmd.js",
             "console": "integratedTerminal",
-            "args": [ ] // Use the same command line arguments as the normal wattle command
+            "autoAttachChildProcesses": true,
+            "args": [ // Use the same command line arguments as the normal wattle command
+                "${relativeFile}" // Useful for running tests in the current file
+            ]
         }
     ]
 }

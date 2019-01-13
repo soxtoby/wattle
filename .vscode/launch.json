@@ -10,8 +10,9 @@
             "name": "Run tests",
             "program": "${workspaceFolder}/lib/CommandLineRunner.js",
             "console": "integratedTerminal",
+            "autoAttachChildProcesses": true,
             "args": [
-                "./tests/*"
+                "${relativeFile}"
             ]
         }
     ]

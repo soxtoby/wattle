@@ -1,10 +1,18 @@
 import * as console from 'console';
 import * as glob from 'fast-glob';
 import * as path from 'path';
-import { BuildServerLogger } from "./BuildServerLogger";
+import { register } from 'ts-node';
+import { AppVeyorLogger } from './AppVeyorLogger';
 import { ConsoleLogger } from "./ConsoleLogger";
 import { LogLevel } from "./LogLevel";
-import { ITestMiddleware, isMiddleware } from "./Middleware";
+import { isMiddleware, ITestMiddleware } from "./Middleware";
+import { TeamCityLogger } from './TeamCityLogger';
+import { ITestLogger } from './TestLogger';
+import { TfsLogger } from './TfsLogger';
+
+export function registerTypeScript(tsProject?: string) {
+    register(tsProject ? { project: tsProject } : undefined);
+}
 
 export function resolveTestFiles(explicitTestFiles: string[], implicitTestFiles: string[]) {
     let fileGlobs = explicitTestFiles
@@ -15,6 +23,8 @@ export function resolveTestFiles(explicitTestFiles: string[], implicitTestFiles:
     return glob.sync(fileGlobs, { onlyFiles: true, absolute: true }) as string[];
 }
 
+export const ErrorLoadingMiddleware = 2;
+
 export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
     return middlewareModules
         .map(m => {
@@ -22,19 +32,22 @@ export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
                 var module = require(path.resolve(m));
             } catch (e) {
                 console.error(`Failed to load middleware module ${m}\n${e.stack}`);
-                process.exit(1);
+                process.exit(ErrorLoadingMiddleware);
             }
             let middleware = module.default;
             if (!isMiddleware(middleware)) {
                 console.error(`Invalid middleware: ${m}.\nMiddleware modules must export a middleware object as their default export.`);
-                process.exit(1);
+                process.exit(ErrorLoadingMiddleware);
             }
             return middleware;
         });
 }
 
-export function getLogger(buildServer: boolean, logLevel: LogLevel, showStacks: boolean, testFiles: string[]) {
-    return buildServer
-        ? new BuildServerLogger()
-        : new ConsoleLogger(logLevel, showStacks, testFiles);
+export function getLogger(buildServer: boolean, logLevel: LogLevel, showStacks: boolean, testFiles: string[]): ITestLogger {
+    if (buildServer) {
+        return process.env.APPVEYOR_API_URL ? new AppVeyorLogger()
+            : process.env.TEAMCITY_VERSION ? new TeamCityLogger()
+                : new TfsLogger();
+    }
+    return new ConsoleLogger(logLevel, showStacks, testFiles);
 }
