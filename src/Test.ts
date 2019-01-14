@@ -1,7 +1,7 @@
 import { ITestContext } from "./Middleware";
 import { performance } from "perf_hooks";
 
-export type TestFunction = () => any;
+export type TestFunction = (this: ITestContext) => any;
 
 export interface ITest {
     name: string;

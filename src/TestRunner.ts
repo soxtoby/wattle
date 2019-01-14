@@ -1,6 +1,5 @@
 import { Test, TestFunction, ITest } from "./Test";
 import { ITestMiddleware, ITestContext, bindMiddlewareFunction, TestMiddleware } from "./Middleware";
-import { fail } from "assert";
 
 let currentTestRun: TestRun | null = null;
 
