@@ -1,5 +1,5 @@
 import * as console from 'console';
-import * as glob from 'glob';
+import * as glob from 'fast-glob';
 import * as path from 'path';
 import { BuildServerLogger } from "./BuildServerLogger";
 import { ConsoleLogger } from "./ConsoleLogger";
@@ -10,15 +10,9 @@ export function resolveTestFiles(explicitTestFiles: string[], implicitTestFiles:
     let fileGlobs = explicitTestFiles
         || implicitTestFiles.length && implicitTestFiles
         || ['**/*.@(ts|tsx|js|jsx)', '!node_modules/**'];
-    fileGlobs.push('!./**/*.d.ts'); // No one wants to test .d.ts files
+    fileGlobs.push('!**/*.d.ts'); // No one wants to test .d.ts files
 
-    let testGlobs = fileGlobs.filter(g => g[0] != '!');
-    let ignoreGlobs = fileGlobs.filter(g => g[0] == '!').map(g => g.substring(1));
-
-    return testGlobs
-        .map(g => glob.sync(g, { nodir: true, ignore: ignoreGlobs }))
-        .reduce((r, fs) => r.concat(fs), [])
-        .map(f => path.resolve(f));
+    return glob.sync(fileGlobs, { onlyFiles: true, absolute: true }) as string[];
 }
 
 export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
