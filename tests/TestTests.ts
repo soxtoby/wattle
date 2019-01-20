@@ -112,7 +112,7 @@ describe("Test", () => {
         let grandchild = new Test("grandchild", sinon.stub(), child);
 
         it("starts at 0", () => expect(root.depth).to.equal(0));
-        
+
         it("increases by 1 for each parent", () => {
             expect(child.depth).to.equal(1);
             expect(grandchild.depth).to.equal(2);

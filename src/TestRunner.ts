@@ -114,7 +114,7 @@ export class TestRunner {
             type: 'TestRun',
             path: test.fullName,
             duration: test.duration,
-            error: test.error && { message: test.error.message, stack: test.error.stack }
+            error: test.error && { message: test.error.toString(), stack: test.error.stack }
         });
 
         this.currentTest = test.parent;

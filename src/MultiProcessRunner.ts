@@ -29,8 +29,10 @@ export function runTests() {
             execArgv.push(`--inspect=${++inspectPort}`);
 
         let testProcess = fork(require.resolve('./TestProcess'), process.argv.slice(2), { execArgv });
+        if (os.setPriority)
+            os.setPriority(testProcess.pid, os.constants.priority.PRIORITY_BELOW_NORMAL);
         testProcess.on('message', m => onMessage(testProcess, m));
-        testProcess.on('exit', (c, s) => onExit(testProcess, c, s));
+        testProcess.on('exit', (c, s) => onExit(testProcess, c!, s!));
         return testProcess;
     }
 
