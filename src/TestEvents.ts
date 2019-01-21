@@ -16,7 +16,7 @@ export interface ModuleCompleted {
 
 export interface TestCollected {
     type: 'TestCollected';
-    module?: string;
+    module: string;
     /** path of parent */
     path: string[];
     name: string;
@@ -24,6 +24,7 @@ export interface TestCollected {
 
 export interface TestRun {
     type: 'TestRun';
+    module: string;
     path: string[];
     duration: number;
     error?: { message: string, stack: string };

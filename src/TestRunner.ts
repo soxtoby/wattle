@@ -1,4 +1,3 @@
-import { performance } from "perf_hooks";
 import { bindMiddlewareFunction, ITestContext, ITestMiddleware } from "./Middleware";
 import { ITest, Test, TestFunction } from "./Test";
 import { TestEvent } from "./TestEvents";
@@ -55,7 +54,7 @@ export class TestRunner {
         try {
             require(module);
         } catch (error) {
-            let failedModule = new Test(module, () => { });
+            let failedModule = new Test(module, () => { }, undefined, module);
             failedModule.error = error;
             this.doCollect(failedModule);
             this.doRun(failedModule, {});
@@ -97,7 +96,7 @@ export class TestRunner {
     }
 
     collect(test: ITest, next: () => void) {
-        this.log({ type: 'TestCollected', module: this.importingModule, path: test.fullName.slice(0, -1), name: test.name })
+        this.log({ type: 'TestCollected', module: test.module, path: test.fullName.slice(0, -1), name: test.name })
         this.currentTestList.push(test);
     }
 
@@ -112,6 +111,7 @@ export class TestRunner {
         test.run(context);
         this.log({
             type: 'TestRun',
+            module: test.module,
             path: test.fullName,
             duration: test.duration,
             error: test.error && { message: test.error.toString(), stack: test.error.stack }

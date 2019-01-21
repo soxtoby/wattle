@@ -33,7 +33,7 @@ export function runTests() {
                 log.moduleCompleted(event.module, tests.moduleTests(event.module));
                 break;
             case 'TestRun':
-                let test = tests.findTest(event.path)!;
+                let test = tests.findTest(event.module, event.path)!;
                 if (test.hasCompleted)
                     log.testCompleted(test);
                 break;
