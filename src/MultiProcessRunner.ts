@@ -1,10 +1,12 @@
 import { ChildProcess, fork } from "child_process";
 import * as os from "os";
 import { args, execArgs } from "./CommandLineArgs";
-import { ErrorLoadingMiddleware, getLogger, resolveTestFiles } from "./CommandLineHelpers";
+import { getLogger, resolveTestFiles } from "./CommandLineHelpers";
+import { ExitCodes } from "./ExitCodes";
 import { LogLevel } from "./LogLevel";
 import { TestEvent } from "./TestEvents";
 import { TestInfoModel } from "./TestInfoModel";
+import { TestProcessMessage } from "./TestProcessMessages";
 
 let inspectPort = execArgs.inspect;
 let inspectBrkPort = execArgs.inspectBrk;
@@ -19,7 +21,6 @@ export function runTests() {
 
     let processCount = Math.min(args.processCount || os.cpus().length, allTestFiles.length);
     let testProcesses = Array.from(new Array(processCount), startTestProcess);
-    testProcesses.forEach(runNextTestModule);
 
     function startTestProcess() {
         let execArgv = [];
@@ -36,37 +37,38 @@ export function runTests() {
         return testProcess;
     }
 
-    function onMessage(testProcess: ChildProcess, event: TestEvent) {
-        tests.update(event);
+    function onMessage(testProcess: ChildProcess, message: TestProcessMessage) {
+        tests.update(message as TestEvent);
 
-        switch (event.type) {
+        switch (message.type) {
             case 'ModuleStarted':
-                log.moduleStarted(event.module);
+                log.moduleStarted(message.module);
                 break;
 
             case 'ModuleCompleted':
-                log.moduleCompleted(event.module, tests.moduleTests(event.module));
-                runNextTestModule(testProcess);
+                log.moduleCompleted(message.module, tests.moduleTests(message.module));
                 break;
 
             case 'TestRun':
-                let test = tests.findTest(event.module, event.path)!;
+                let test = tests.findTest(message.module, message.path)!;
                 if (test.hasCompleted)
                     log.testCompleted(test);
+                break;
+
+            case 'WaitingForTests':
+                runNextTestModule(testProcess);
                 break;
         }
     }
 
     function onExit(testProcess: ChildProcess, code: number, signal: string) {
-        if (code == ErrorLoadingMiddleware)
+        if (code == ExitCodes.ErrorLoadingMiddleware)
             return process.exit(code);
 
         testProcesses = testProcesses.filter(p => p != testProcess);
-        if (remainingTestFiles.length) {
-            let newProcess = startTestProcess();
-            testProcesses.push(newProcess);
-            runNextTestModule(newProcess);
-        } else if (!testProcesses.length)
+        if (remainingTestFiles.length)
+            testProcesses.push(startTestProcess());
+        else if (!testProcesses.length)
             done();
     }
 
@@ -82,6 +84,6 @@ export function runTests() {
 
     function done() {
         log.finally(tests.allTests);
-        process.exit(tests.allTestsPassed ? 0 : 1);
+        process.exit(tests.allTestsPassed ? ExitCodes.Success : ExitCodes.TestsFailed);
     }
 }

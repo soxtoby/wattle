@@ -4,6 +4,7 @@ import * as path from 'path';
 import { register } from 'ts-node';
 import { AppVeyorLogger } from './AppVeyorLogger';
 import { ConsoleLogger } from "./ConsoleLogger";
+import { ExitCodes } from "./ExitCodes";
 import { LogLevel } from "./LogLevel";
 import { isMiddleware, ITestMiddleware } from "./Middleware";
 import { TeamCityLogger } from './TeamCityLogger';
@@ -23,8 +24,6 @@ export function resolveTestFiles(explicitTestFiles: string[], implicitTestFiles:
     return glob.sync(fileGlobs, { onlyFiles: true, absolute: true }) as string[];
 }
 
-export const ErrorLoadingMiddleware = 2;
-
 export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
     return middlewareModules
         .map(m => {
@@ -32,12 +31,12 @@ export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
                 var module = require(path.resolve(m));
             } catch (e) {
                 console.error(`Failed to load middleware module ${m}\n${e.stack}`);
-                process.exit(ErrorLoadingMiddleware);
+                process.exit(ExitCodes.ErrorLoadingMiddleware);
             }
             let middleware = module.default;
             if (!isMiddleware(middleware)) {
                 console.error(`Invalid middleware: ${m}.\nMiddleware modules must export a middleware object as their default export.`);
-                process.exit(ErrorLoadingMiddleware);
+                process.exit(ExitCodes.ErrorLoadingMiddleware);
             }
             return middleware;
         });

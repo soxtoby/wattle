@@ -1,6 +1,10 @@
+import { TestEvent } from "./TestEvents";
+
 export type TestProcessMessage =
     RunTests
-    | Stop;
+    | Stop
+    | WaitingForTests
+    | TestEvent;
 
 export interface RunTests {
     type: 'RunTests';
@@ -9,4 +13,8 @@ export interface RunTests {
 
 export interface Stop {
     type: 'Stop'
+}
+
+export interface WaitingForTests {
+    type: 'WaitingForTests'
 }

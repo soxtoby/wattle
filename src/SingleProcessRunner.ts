@@ -1,5 +1,6 @@
 import { args } from "./CommandLineArgs";
 import { getLogger, loadMiddleware, registerTypeScript, resolveTestFiles } from "./CommandLineHelpers";
+import { ExitCodes } from "./ExitCodes";
 import { LogLevel } from "./LogLevel";
 import { TestEvent } from './TestEvents';
 import { TestInfoModel } from './TestInfoModel';
@@ -16,10 +17,10 @@ export function runTests() {
     try {
         new TestRunner(loadMiddleware(args.middleware), onMessage).runTests(allTestFiles);
         log.finally(tests.allTests);
-        process.exit(tests.allTestsPassed ? 0 : 1);
+        process.exit(tests.allTestsPassed ? ExitCodes.Success : ExitCodes.TestsFailed);
     } catch (error) {
         console.error(error);
-        process.exit(1);
+        process.exit(ExitCodes.UnexpectedError);
     }
 
     function onMessage(event: TestEvent) {
