@@ -4,6 +4,10 @@ export type TestEvent =
     | TestCollected
     | TestRun;
 
+export function isTestEvent(event: object): event is TestEvent {
+    return ['ModuleStarted', 'ModuleCompleted', 'TestCollected', 'TestRun'].includes((event as TestEvent).type);
+}
+
 export interface ModuleStarted {
     type: 'ModuleStarted';
     module: string;

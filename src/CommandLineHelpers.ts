@@ -1,5 +1,4 @@
 import * as console from 'console';
-import * as glob from 'fast-glob';
 import * as path from 'path';
 import { register } from 'ts-node';
 import { AppVeyorLogger } from './AppVeyorLogger';
@@ -11,17 +10,12 @@ import { TeamCityLogger } from './TeamCityLogger';
 import { ITestLogger } from './TestLogger';
 import { TfsLogger } from './TfsLogger';
 
+let isTypeScriptRegistered = false;
 export function registerTypeScript(tsProject?: string) {
-    register(tsProject ? { project: tsProject } : undefined);
-}
-
-export function resolveTestFiles(explicitTestFiles: string[], implicitTestFiles: string[]) {
-    let fileGlobs = explicitTestFiles
-        || implicitTestFiles.length && implicitTestFiles
-        || ['**/*.@(ts|tsx|js|jsx)', '!node_modules/**'];
-    fileGlobs.push('!**/*.d.ts'); // No one wants to test .d.ts files
-
-    return glob.sync(fileGlobs, { onlyFiles: true, absolute: true }) as string[];
+    if (!isTypeScriptRegistered) {
+        register(tsProject ? { project: tsProject } : undefined);
+        isTypeScriptRegistered = true;
+    }
 }
 
 export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
@@ -40,13 +34,4 @@ export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
             }
             return middleware;
         });
-}
-
-export function getLogger(buildServer: boolean, logLevel: LogLevel, showStacks: boolean, testFiles: string[]): ITestLogger {
-    if (buildServer) {
-        return process.env.APPVEYOR_API_URL ? new AppVeyorLogger()
-            : process.env.TEAMCITY_VERSION ? new TeamCityLogger()
-                : new TfsLogger();
-    }
-    return new ConsoleLogger(logLevel, showStacks, testFiles);
 }

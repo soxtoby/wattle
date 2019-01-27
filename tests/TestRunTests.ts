@@ -6,11 +6,11 @@ import { SinonSpy, SinonStub } from 'sinon';
 import { describe, then, when } from '../lib';
 import { TestMiddleware, ITestContext } from '../src/Middleware';
 import { Test, ITest } from '../src/test';
-import { TestRunner } from '../src/TestRunner';
+import { TestRun } from '../src/TestRun';
 import './setup';
 
 describe("running individual tests", () => {
-    let sut = new TestRunner();
+    let sut = new TestRun();
 
     when("running empty test method", () => {
         let testFunction = sinon.stub();
@@ -118,7 +118,7 @@ describe("running tests in test files", function () {
     }
 
     let spy = new Spy();
-    let sut = new TestRunner([spy]);
+    let sut = new TestRun([spy]);
 
     when("test files are run", () => {
         let testFiles = ['../tests/test-files/file2.ts', '../tests/test-files/file1.ts'];

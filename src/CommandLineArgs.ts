@@ -1,5 +1,6 @@
-import * as yargs from 'yargs';
+import * as yargs from "yargs";
 import { LogLevel } from "./LogLevel";
+import { defaults } from "./TestRunnerConfig";
 
 export interface IArgs {
     _: string[];
@@ -26,27 +27,27 @@ export const args = yargs
             alias: 'middleware',
             array: true,
             type: 'string',
-            default: [],
+            default: defaults.middleware,
             defaultDescription: 'none',
             describe: "Add one or more middleware modules."
         },
         's': {
             alias: 'show-stacks',
             type: 'boolean',
-            default: false,
+            default: defaults.showStacks,
             describe: "Include stack traces in output."
         },
         'v': {
             alias: 'verbosity',
             type: 'string',
-            default: 'default',
+            default: LogLevel[defaults.verbosity],
             describe: "Logging verbosity.",
             choices: ['quiet', 'default', 'full']
         },
         'b': {
             alias: 'build-server',
             type: 'boolean',
-            default: false,
+            default: defaults.buildServer,
             describe: "Output results in a format suitable for a build server."
         },
         'p': {

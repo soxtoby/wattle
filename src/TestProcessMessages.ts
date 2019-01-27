@@ -1,10 +1,19 @@
 import { TestEvent } from "./TestEvents";
+import { ITestRunnerConfig } from "./TestRunnerConfig";
 
 export type TestProcessMessage =
-    RunTests
-    | Stop
-    | WaitingForTests
+    WaitingForTests
     | TestEvent;
+
+export type TestRunnerMessage =
+    Initialize
+    | RunTests
+    | Stop;
+
+export interface Initialize {
+    type: 'Initialize',
+    config: ITestRunnerConfig
+}
 
 export interface RunTests {
     type: 'RunTests';

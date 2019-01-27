@@ -1,10 +1,9 @@
-import './setup';
-import { describe, when, it, then } from "../lib/index";
-import * as sinon from "sinon";
 import { expect } from "chai";
-import { TestMiddleware, ITestMiddleware, bindMiddlewareFunction, ITestContext } from "../lib/middleware";
+import * as sinon from "sinon";
+import { describe, it, then, when } from "../lib/index";
+import { bindMiddlewareFunction, ITestContext, ITestMiddleware, TestMiddleware } from "../lib/middleware";
 import { Test } from "../lib/test";
-import { SinonStub } from 'sinon';
+import './setup';
 
 describe("middleware", function () {
     describe("TestMiddleware base class", function () {
