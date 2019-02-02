@@ -1,14 +1,8 @@
 import * as console from 'console';
 import * as path from 'path';
 import { register } from 'ts-node';
-import { AppVeyorLogger } from './AppVeyorLogger';
-import { ConsoleLogger } from "./ConsoleLogger";
 import { ExitCodes } from "./ExitCodes";
-import { LogLevel } from "./LogLevel";
 import { isMiddleware, ITestMiddleware } from "./Middleware";
-import { TeamCityLogger } from './TeamCityLogger';
-import { ITestLogger } from './TestLogger';
-import { TfsLogger } from './TfsLogger';
 
 let isTypeScriptRegistered = false;
 export function registerTypeScript(tsProject?: string) {

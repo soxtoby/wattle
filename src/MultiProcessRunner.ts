@@ -11,7 +11,8 @@ let inspectBrkPort = execArgs.inspectBrk;
 
 export class MultiProcessRunner {
     private testFileQueue: string[] = [];
-    private testProcesses: ChildProcess[] = [];
+    /** Process -> ready */
+    private testProcesses = new Map<ChildProcess, boolean>();
     private currentlyRunningModules: { [pid: number]: string } = {};
     private runs: { files: string[], completed: () => void, errored: (code: ExitCodes) => void }[] = [];
 
@@ -29,8 +30,13 @@ export class MultiProcessRunner {
                     this.testFileQueue.push(file);
 
             let processCount = Math.min(this.config.processCount, testFiles.length);
-            while (this.testProcesses.length < processCount)
+            while (this.testProcesses.size < processCount)
                 this.startTestProcess();
+
+            this.testProcesses.forEach((ready, testProcess) => {
+                if (ready && !(testProcess.pid in this.currentlyRunningModules))
+                    this.runNextTestModule(testProcess);
+            });
         });
     }
 
@@ -43,7 +49,7 @@ export class MultiProcessRunner {
 
         testProcess.send({ type: 'Initialize', config: this.config });
 
-        this.testProcesses.push(testProcess);
+        this.testProcesses.set(testProcess, false);
     }
 
     onMessage(testProcess: ChildProcess, message: TestProcessMessage) {
@@ -53,9 +59,12 @@ export class MultiProcessRunner {
         switch (message.type) {
             case 'ModuleCompleted':
                 delete this.currentlyRunningModules[testProcess.pid];
+                if (this.config.watch) // If not watching, then check on exit
+                    this.checkIfRunComplete();
                 break;
 
             case 'WaitingForTests':
+                this.testProcesses.set(testProcess, true);
                 this.runNextTestModule(testProcess);
                 break;
         }
@@ -66,7 +75,7 @@ export class MultiProcessRunner {
             this.runs.forEach(r => r.errored(code));
             this.runs = [];
         } else {
-            this.testProcesses = this.testProcesses.filter(p => p != testProcess);
+            this.testProcesses.delete(testProcess);
             delete this.currentlyRunningModules[testProcess.pid];
 
             this.checkIfRunComplete();
@@ -81,7 +90,7 @@ export class MultiProcessRunner {
         if (nextTestModule) {
             this.currentlyRunningModules[testProcess.pid] = nextTestModule;
             testProcess.send({ type: 'RunTests', module: nextTestModule });
-        } else {
+        } else if (!this.config.watch) {
             testProcess.send({ type: 'Stop' });
         }
     }

@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import * as sinon from "sinon";
 import { describe, it, then, when } from "../lib/index";
-import { bindMiddlewareFunction, ITestContext, ITestMiddleware, TestMiddleware } from "../lib/middleware";
-import { Test } from "../lib/test";
+import { bindMiddlewareFunction, ITestContext, ITestMiddleware, TestMiddleware } from "../src/middleware";
+import { Test } from "../src/Test";
 import './setup';
 
 describe("middleware", function () {

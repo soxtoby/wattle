@@ -4,8 +4,8 @@ import * as mockPromises from 'mock-promises';
 import * as sinon from 'sinon';
 import { SinonSpy, SinonStub } from 'sinon';
 import { describe, then, when } from '../lib';
-import { TestMiddleware, ITestContext } from '../src/Middleware';
-import { Test, ITest } from '../src/test';
+import { ITestContext, TestMiddleware } from '../src/Middleware';
+import { ITest, Test } from '../src/Test';
 import { TestRun } from '../src/TestRun';
 import './setup';
 

@@ -8,6 +8,7 @@ export interface ITestRunnerConfig {
     verbosity: LogLevel;
     buildServer: boolean;
     processCount: number;
+    watch: boolean;
     tsProject: string;
 }
 
@@ -18,5 +19,6 @@ export const defaults: ITestRunnerConfig = {
     verbosity: LogLevel.default,
     buildServer: false,
     processCount: os.cpus().length,
+    watch: false,
     tsProject: 'tsconfig.json'
 };

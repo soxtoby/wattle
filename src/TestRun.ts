@@ -1,4 +1,5 @@
 import { bindMiddlewareFunction, ITestContext, ITestMiddleware } from "./Middleware";
+import { dependencies } from "./ModuleDependencies";
 import { ITest, Test, TestFunction } from "./Test";
 import { TestEvent } from "./TestEvents";
 
@@ -43,7 +44,7 @@ export class TestRun {
         let runModuleFn = bindMiddlewareFunction(m => m.runModule, this.middleware, module);
         runModuleFn();
 
-        this.log({ type: 'ModuleCompleted', module });
+        this.log({ type: 'ModuleCompleted', module, dependencies: dependencies(module) });
     }
 
     runModule(module: string, next: () => void) {

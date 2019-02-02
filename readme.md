@@ -68,6 +68,7 @@ Option                  |Description
 `-v`, `--verbosity`     | Logging verbosity (`quiet`, `default`, or `full`).
 `-b`, `--build-server`  | Output results in a format suitable for a build server. Currently supports TeamCity, AppVeyor, and TFS/VSTS.
 `-p`, `--process-count` | Number of test processes to use. If 0 is specified, tests will be run synchronously in the main process.
+`-w`, `--watch`         | Keep open after initial test run and re-run tests that have changed.
 `--ts-project`          | Path to custom tsconfig file.
 
 ## Build Server Support

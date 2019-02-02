@@ -8,6 +8,7 @@ let options: Partial<ITestRunnerConfig> = {
     middleware: args.middleware,
     showStacks: args.showStacks,
     verbosity: LogLevel[args.verbosity],
+    watch: args.watch,
     buildServer: args.buildServer
 };
 if (args.testFiles)
@@ -21,7 +22,9 @@ if (args.tsProject)
 
 let runner = new TestRunner(options);
 
-runner.run()
+let completed: Promise<unknown> = args.watch ? runner.watch() : runner.run();
+
+completed
     .then(() => {
         process.exit(runner.allTestsPassed ? ExitCodes.Success : ExitCodes.TestsFailed);
     })

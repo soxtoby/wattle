@@ -16,6 +16,7 @@ export interface ModuleStarted {
 export interface ModuleCompleted {
     type: 'ModuleCompleted';
     module: string;
+    dependencies: string[];
 }
 
 export interface TestCollected {

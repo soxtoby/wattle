@@ -2,7 +2,7 @@ import './setup';
 import { describe, when, then, it, test } from '../lib/index';
 import * as sinon from 'sinon';
 import { expect } from 'chai';
-import { Test } from '../lib/test';
+import { Test } from '../src/Test';
 
 describe("Test", () => {
     when("not run", () => {

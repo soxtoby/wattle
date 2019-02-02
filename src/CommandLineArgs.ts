@@ -10,6 +10,7 @@ export interface IArgs {
     verbosity: keyof typeof LogLevel;
     buildServer: boolean;
     processCount: number;
+    watch: boolean;
     tsProject: string;
 }
 
@@ -21,7 +22,7 @@ export const args = yargs
             array: true,
             type: 'string',
             describe: "One or more globs of test files to run.",
-            defaultDescription: "All JavaScript & TypeScript files in the current folder"
+            defaultDescription: "All JavaScript & TypeScript files in the current folder."
         },
         'm': {
             alias: 'middleware',
@@ -54,7 +55,13 @@ export const args = yargs
             alias: 'process-count',
             type: 'number',
             defaultDescription: "1 per CPU core",
-            describe: "Number of test processes to use. If 0 is specified, tests will be run synchronously in the main process"
+            describe: "Number of test processes to use. If 0 is specified, tests will be run synchronously in the main process."
+        },
+        'w': {
+            alias: 'watch',
+            type: 'boolean',
+            default: defaults.watch,
+            describe: "Keep open after initial test run and re-run tests that have changed."
         },
         'ts-project': {
             type: 'string',
