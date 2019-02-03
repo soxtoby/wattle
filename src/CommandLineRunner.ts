@@ -1,24 +1,24 @@
+import * as path from 'path';
 import { args } from './CommandLineArgs';
 import { ExitCodes } from './ExitCodes';
 import { LogLevel } from './LogLevel';
 import { TestRunner } from './TestRunner';
-import { ITestRunnerConfig } from './TestRunnerConfig';
+import { combineConfigs, lastConfig } from './TestRunnerConfig';
 
-let options: Partial<ITestRunnerConfig> = {
+try {
+    require(path.resolve(args.config));
+} catch { }
+
+let options = combineConfigs(lastConfig, {
     middleware: args.middleware,
     showStacks: args.showStacks,
     verbosity: LogLevel[args.verbosity],
     watch: args.watch,
-    buildServer: args.buildServer
-};
-if (args.testFiles)
-    options.testFiles = args.testFiles;
-else if (args._.length)
-    options.testFiles = args._;
-if (args.processCount != null)
-    options.processCount = args.processCount;
-if (args.tsProject)
-    options.tsProject = args.tsProject;
+    buildServer: args.buildServer,
+    testFiles: args.testFiles || (args._.length ? args._ : undefined),
+    processCount: args.processCount,
+    tsProject: args.tsProject
+});
 
 let runner = new TestRunner(options);
 

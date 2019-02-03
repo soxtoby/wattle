@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prepare": "./node_modules/.bin/tsc",
-    "test": "node ./lib/CommandLineRunner.js ./tests/*"
+    "test": "node ./lib/CommandLineRunner.js"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",

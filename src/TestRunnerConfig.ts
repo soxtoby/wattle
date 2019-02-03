@@ -22,3 +22,20 @@ export const defaults: ITestRunnerConfig = {
     watch: false,
     tsProject: 'tsconfig.json'
 };
+
+export let lastConfig: Partial<ITestRunnerConfig> = {};
+
+export function configure(options: Partial<ITestRunnerConfig>) {
+    lastConfig = options;
+}
+
+export function combineConfigs(...partialConfigs: Partial<ITestRunnerConfig>[]) {
+    let config = {} as Partial<ITestRunnerConfig>;
+
+    for (let partial of partialConfigs)
+        for (let [key, value] of Object.entries(partial))
+            if (value != null)
+                config[key as keyof ITestRunnerConfig] = value;
+
+    return config;
+}

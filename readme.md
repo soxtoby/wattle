@@ -62,6 +62,7 @@ wattle [-t|--test-files] <test file globs> [options]
 
 Option                  |Description
 ------------------------|-----------
+`-c`, `--config`        | Path to wattle config file.
 `-t`, `--test-files`    | One or more globs of test files to run.
 `-m`, `--middleware`    | Add one or more middleware modules.
 `-s`, `--show-stacks`   | Include stack traces in output.
@@ -70,6 +71,20 @@ Option                  |Description
 `-p`, `--process-count` | Number of test processes to use. If 0 is specified, tests will be run synchronously in the main process.
 `-w`, `--watch`         | Keep open after initial test run and re-run tests that have changed.
 `--ts-project`          | Path to custom tsconfig file.
+
+Options specified via the command line will override options in the configuration file.
+
+## Configuration File
+In addition to the command line options, you can configure wattle via javascript. By default, this should be a file in the root of your project called `wattle.config.js`, but you can specify a different file using the `--config` command line option. The file should look something like this:
+
+```js
+require('wattle').configure({
+    testFiles: ['./tests/**/*'],
+    // ...other options
+});
+```
+
+See the Command Line section above for available options. Note that options are specified as `camelCase`, rather than `kebab-case`.
 
 ## Build Server Support
 With the `--build-server` option, test results will be automatically logged to TeamCity and AppVeyor. For TFS/VSTS, wattle will create a `wattle-results.trx` file that needs to be published with a **Publish Test Results** build step.

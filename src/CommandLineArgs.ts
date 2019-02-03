@@ -4,6 +4,7 @@ import { defaults } from "./TestRunnerConfig";
 
 export interface IArgs {
     _: string[];
+    config: string;
     testFiles: string[];
     middleware: string[];
     showStacks: boolean;
@@ -17,6 +18,12 @@ export interface IArgs {
 export const args = yargs
     .usage("$0 [--test-files] <test file globs> [options]")
     .options({
+        'c': {
+            alias: 'config',
+            type: 'string',
+            default: 'wattle.config.js',
+            describe: "Path to wattle config file."
+        },
         't': {
             alias: 'test-files',
             array: true,

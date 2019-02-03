@@ -8,3 +8,4 @@ export {
     runTestWithCurrentRunner as it
 } from './TestRun';
 export * from './TestRunner';
+export { ITestRunnerConfig, configure } from './TestRunnerConfig';
