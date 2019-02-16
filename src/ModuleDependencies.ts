@@ -55,10 +55,16 @@ export class DependencyWatcher {
     }
 }
 
+export function reloadDependencies(module: string) {
+    [module].concat(dependencies(module))
+        .forEach(m => delete require.cache[m]);
+}
+
 export function dependencies(module: string) {
     let dependencies = new Set();
     findDependencies(module);
     dependencies.delete(module);
+    wattleDependencies().forEach(d => dependencies.delete(d));
     return Array.from(dependencies);
 
     function findDependencies(module: string) {
@@ -72,4 +78,16 @@ export function dependencies(module: string) {
         dependencies.add(info.filename);
         info.children.forEach(c => findDependencies(c.filename));
     }
+}
+
+let wattleDeps: string[];
+
+function wattleDependencies() {
+    if (wattleDeps)
+        return wattleDeps;
+
+    wattleDeps = []; // Stop infinite recursion
+    require('./index'); // Make sure wattle is in the require cache
+    wattleDeps = dependencies(require.resolve('./index'));
+    return wattleDeps;
 }

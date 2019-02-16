@@ -1,5 +1,5 @@
 import { bindMiddlewareFunction, ITestContext, ITestMiddleware } from "./Middleware";
-import { dependencies } from "./ModuleDependencies";
+import { dependencies, reloadDependencies } from "./ModuleDependencies";
 import { ITest, Test, TestFunction } from "./Test";
 import { TestEvent } from "./TestEvents";
 
@@ -22,6 +22,8 @@ export class TestRun {
     runTests(testModules: string[]) {
         if (currentTestRun != null)
             throw new Error("Test run already in progress");
+
+        testModules.forEach(reloadDependencies);
 
         currentTestRun = this;
 

@@ -171,8 +171,9 @@ function getMatchGlobs(testFiles: string[]) {
     return testFiles.filter(g => !g.startsWith('!'));
 }
 
-function resolveTestFiles(fileGlobs: string[]) {
-    return glob(fileGlobs, { onlyFiles: true, absolute: true }) as Promise<string[]>;
+async function resolveTestFiles(fileGlobs: string[]) {
+    let files = await glob<string>(fileGlobs, { onlyFiles: true, absolute: true });
+    return files.map(path.normalize);
 }
 
 function getLogger(buildServer: boolean, logLevel: LogLevel, showStacks: boolean, testFiles: string[]): ITestLogger {
