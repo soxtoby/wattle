@@ -12,7 +12,7 @@ try {
 let options = combineConfigs(lastConfig, {
     middleware: args.middleware,
     showStacks: args.showStacks,
-    verbosity: LogLevel[args.verbosity],
+    verbosity: args.verbosity && LogLevel[args.verbosity],
     watch: args.watch,
     buildServer: args.buildServer,
     testFiles: args.testFiles || (args._.length ? args._ : undefined),

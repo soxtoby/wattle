@@ -1,6 +1,5 @@
 import * as yargs from "yargs";
 import { LogLevel } from "./LogLevel";
-import { defaults } from "./TestRunnerConfig";
 
 export interface IArgs {
     _: string[];
@@ -35,27 +34,28 @@ export const args = yargs
             alias: 'middleware',
             array: true,
             type: 'string',
-            default: defaults.middleware,
             defaultDescription: 'none',
             describe: "Add one or more middleware modules."
         },
         's': {
             alias: 'show-stacks',
             type: 'boolean',
-            default: defaults.showStacks,
+            default: undefined,
+            defaultDescription: "don't show stacks",
             describe: "Include stack traces in output."
         },
         'v': {
             alias: 'verbosity',
             type: 'string',
-            default: LogLevel[defaults.verbosity],
+            defaultDescription: "default",
             describe: "Logging verbosity.",
             choices: ['quiet', 'default', 'full']
         },
         'b': {
             alias: 'build-server',
             type: 'boolean',
-            default: defaults.buildServer,
+            default: undefined,
+            defaultDescription: "disabled",
             describe: "Output results in a format suitable for a build server."
         },
         'p': {
@@ -67,7 +67,8 @@ export const args = yargs
         'w': {
             alias: 'watch',
             type: 'boolean',
-            default: defaults.watch,
+            default: undefined,
+            defaultDescription: "single run",
             describe: "Keep open after initial test run and re-run tests that have changed."
         },
         'ts-project': {
