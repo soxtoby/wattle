@@ -6,8 +6,8 @@ import { isTestEvent, TestEvent } from "./TestEvents";
 import { TestProcessMessage } from "./TestProcessMessages";
 import { ITestRunnerConfig } from "./TestRunnerConfig";
 
-let inspectPort = execArgs.inspect;
-let inspectBrkPort = execArgs.inspectBrk;
+let inspectPort = execArgs.inspect as number | undefined;
+let inspectBrkPort = execArgs.inspectBrk as number | undefined;
 
 export class MultiProcessRunner {
     private testFileQueue: string[] = [];

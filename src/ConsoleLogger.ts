@@ -1,12 +1,13 @@
-import chalk, { Chalk } from 'chalk';
+import * as chalk from 'chalk';
+import { Chalk } from 'chalk';
 import * as console from 'console';
 import * as path from 'path';
+import { performance } from 'perf_hooks';
 import { Counter } from './Counter';
 import { LogLevel } from './LogLevel';
 import { ITestInfo } from "./Test";
 import { TestLogger } from './TestLogger';
 import logUpdate = require('log-update');
-import { performance } from 'perf_hooks';
 
 export class ConsoleLogger extends TestLogger {
     private counter = new Counter();

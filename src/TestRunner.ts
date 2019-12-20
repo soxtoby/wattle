@@ -73,7 +73,7 @@ export class TestRunner {
 
     get allTestsPassed() { return this.tests.allTestsPassed; }
 
-    private initialRun(watchedDirs: chokidar.WatchedPaths) {
+    private initialRun(watchedDirs: Record<string, string[]>) {
         let files = Object.entries(watchedDirs)
             .reduce((all, [dir, files]) => all.concat(files.map(f => path.join(dir, f))), [] as string[])
             .filter(f => !(f in watchedDirs))
@@ -172,7 +172,7 @@ function getMatchGlobs(testFiles: string[]) {
 }
 
 async function resolveTestFiles(fileGlobs: string[]) {
-    let files = await glob<string>(fileGlobs, { onlyFiles: true, absolute: true });
+    let files = await glob(fileGlobs, { onlyFiles: true, absolute: true });
     return files.map(path.normalize);
 }
 
