@@ -61,7 +61,7 @@ export function reloadDependencies(module: string) {
 }
 
 export function dependencies(module: string) {
-    let dependencies = new Set();
+    let dependencies = new Set<string>();
     findDependencies(module);
     dependencies.delete(module);
     wattleDependencies().forEach(d => dependencies.delete(d));

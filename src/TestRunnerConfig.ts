@@ -29,13 +29,13 @@ export function configure(options: Partial<ITestRunnerConfig>) {
     lastConfig = options;
 }
 
-export function combineConfigs(...partialConfigs: Partial<ITestRunnerConfig>[]) {
-    let config = {} as Partial<ITestRunnerConfig>;
+export function combineConfigs(...partialConfigs: Partial<ITestRunnerConfig>[]): Partial<ITestRunnerConfig> {
+    let config = {} as any;
 
     for (let partial of partialConfigs)
         for (let [key, value] of Object.entries(partial))
             if (value != null)
-                config[key as keyof ITestRunnerConfig] = value;
+                config[key] = value;
 
     return config;
 }
