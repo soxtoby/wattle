@@ -1,3 +1,4 @@
+/// <reference path="./node-trx.d.ts" />
 import { writeFileSync } from 'fs';
 import * as trx from 'node-trx';
 import { UnitTest } from 'node-trx';
