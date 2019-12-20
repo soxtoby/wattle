@@ -71,6 +71,9 @@ export class TestRun {
     }
 
     test(name: string, testFn: TestFunction) {
+        if (!name)
+            throw new Error("Test is missing a name");
+
         (testFn as any).displayName = name;
 
         if (this.currentTestList.find(t => t.name == name) == null) {
