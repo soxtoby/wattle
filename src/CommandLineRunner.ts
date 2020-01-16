@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { args } from './CommandLineArgs';
+import { fixWindowsPath } from "./CommandLineHelpers";
 import { ExitCodes } from './ExitCodes';
 import { LogLevel } from './LogLevel';
 import { TestRunner } from './TestRunner';
@@ -15,7 +16,7 @@ let options = combineConfigs(lastConfig, {
     verbosity: args.verbosity && LogLevel[args.verbosity],
     watch: args.watch,
     buildServer: args.buildServer,
-    testFiles: args.testFiles || (args._.length ? args._ : undefined),
+    testFiles: (args.testFiles || (args._.length ? args._ : undefined)).map(fixWindowsPath),
     processCount: args.processCount,
     tsProject: args.tsProject
 });

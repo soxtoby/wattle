@@ -29,3 +29,7 @@ export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
             return middleware;
         });
 }
+
+export function fixWindowsPath(path: string) {
+    return path.replace(/\\/g, '/');
+}
