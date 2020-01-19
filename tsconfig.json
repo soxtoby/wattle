@@ -8,7 +8,8 @@
     "strict": true,
     "inlineSourceMap": true,
     "inlineSources": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "newLine": "lf"
   },
   "include": [
     "./src/**/*"
