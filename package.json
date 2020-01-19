@@ -1,6 +1,6 @@
 {
   "name": "wattle",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "Hierarchical test runner",
   "main": "lib/index",
   "types": "lib/index",
@@ -25,7 +25,7 @@
     "mock-promises": "^0.8.2",
     "sinon": "^7.5.0",
     "sinon-chai": "^3.3.0",
-    "typescript": "^3.2.4"
+    "typescript": "^3.7.0"
   },
   "files": [
     "lib"

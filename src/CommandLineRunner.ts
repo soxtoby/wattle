@@ -16,7 +16,7 @@ let options = combineConfigs(lastConfig, {
     verbosity: args.verbosity && LogLevel[args.verbosity],
     watch: args.watch,
     buildServer: args.buildServer,
-    testFiles: (args.testFiles || (args._.length ? args._ : undefined)).map(fixWindowsPath),
+    testFiles: (args.testFiles || (args._.length ? args._ : undefined))?.map(fixWindowsPath),
     processCount: args.processCount,
     tsProject: args.tsProject
 });
