@@ -71,6 +71,8 @@ export class TestRunner {
         }
     }
 
+    get anyTests() { return !!this.tests.allTests.length; }
+
     get allTestsPassed() { return this.tests.allTestsPassed; }
 
     private initialRun(watchedDirs: Record<string, string[]>) {

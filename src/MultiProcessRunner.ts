@@ -23,6 +23,9 @@ export class MultiProcessRunner {
 
     run(testFiles: string[]) {
         return new Promise((resolve, reject) => {
+            if (!testFiles.length)
+                return resolve();
+
             this.runs.push({ files: testFiles, completed: resolve, errored: reject });
 
             for (let file of testFiles)

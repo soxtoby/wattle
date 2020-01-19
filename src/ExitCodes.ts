@@ -3,5 +3,6 @@ export enum ExitCodes {
     TestsFailed,
     UnexpectedError,
     ErrorLoadingMiddleware,
-    ExceededMemoryLimit
+    ExceededMemoryLimit,
+    NoTests
 }
