@@ -22,7 +22,7 @@ export class MultiProcessRunner {
     ) { }
 
     run(testFiles: string[]) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             if (!testFiles.length)
                 return resolve();
 
@@ -47,7 +47,7 @@ export class MultiProcessRunner {
         let testProcess = fork(require.resolve('./TestProcess'), [], { execArgv: buildExecArgs() });
         if (os.setPriority)
             os.setPriority(testProcess.pid, os.constants.priority.PRIORITY_BELOW_NORMAL);
-        testProcess.on('message', m => this.onMessage(testProcess, m));
+        testProcess.on('message', m => this.onMessage(testProcess, m as TestProcessMessage));
         testProcess.on('exit', (c, s) => this.onExit(testProcess, c!, s!));
 
         testProcess.send({ type: 'Initialize', config: this.config });

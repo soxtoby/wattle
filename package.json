@@ -11,31 +11,29 @@
   },
   "scripts": {
     "prepare": "tsc",
-    "test": "node ./lib/cmd.js"
-  },
-  "devDependencies": {
-    "@types/chalk": "^2.2.0",
-    "@types/chokidar": "^2.1.3",
-    "@types/log-update": "^3.1.0",
-    "@types/node": "^12.12.21",
-    "@types/sinon-chai": "^3.2.3",
-    "@types/yargs": "^13.0.3",
-    "chai": "^4.1.2",
-    "mock-promises": "^0.8.2",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.3.0",
-    "typescript": "^3.7.0"
+    "test": "node ./lib/cmd.js",
+    "watch": "tsc -w"
   },
   "files": [
     "lib"
   ],
+  "devDependencies": {
+    "@types/node": "*",
+    "@types/sinon-chai": "*",
+    "@types/yargs": ">=16.0.1 <18",
+    "chai": "*",
+    "mock-promises": "*",
+    "sinon": "*",
+    "sinon-chai": "*",
+    "typescript": "*"
+  },
   "dependencies": {
-    "chalk": "^3.0.0",
+    "chalk": "^4",
     "chokidar": "^3.3.1",
     "fast-glob": "^3.1.1",
-    "log-update": "^3.3.0",
+    "log-update": "^4",
     "node-trx": "^0.9.1",
-    "ts-node": "^8.5.4",
-    "yargs": "^15.0.2"
+    "ts-node": "^9",
+    "yargs": "^17"
   }
 }

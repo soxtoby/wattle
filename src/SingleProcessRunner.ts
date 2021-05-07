@@ -12,7 +12,7 @@ export class SingleProcessRunner {
     run(testFiles: string[]) {
         registerTypeScript(this.config.tsProject);
 
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             new TestRun(loadMiddleware(this.config.middleware), this.testEventHandler).runTests(testFiles);
             resolve();
         });
