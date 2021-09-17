@@ -78,4 +78,9 @@ export const args = yargs
     })
     .argv as any as IArgs;
 
-export const execArgs = yargs.parse(process.execArgv);
+export interface IExecArgs {
+    inspect?: number;
+    inspectBrk?: number;
+}
+
+export const execArgs = yargs.parse(process.execArgv) as IExecArgs;

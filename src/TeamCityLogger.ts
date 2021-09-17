@@ -19,7 +19,7 @@ export class TeamCityLogger extends TestLogger {
         this.log('testStarted', { name: testName });
 
         if (test.error)
-            this.log('testFailed', { name: testName, message: test.error.message, details: test.error.stack });
+            this.log('testFailed', { name: testName, message: test.errorMessage!, details: test.errorStack! });
 
         this.log('testFinished', { name: testName, duration: test.duration.toFixed(0) });
     }

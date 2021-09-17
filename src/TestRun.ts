@@ -120,7 +120,7 @@ export class TestRun {
             module: test.module,
             path: test.fullName,
             duration: test.duration,
-            error: test.error && { message: test.error.toString(), stack: test.error.stack }
+            error: test.error == null ? undefined : { message: test.errorMessage!, stack: test.errorStack! }
         });
 
         this.currentTest = test.parent;

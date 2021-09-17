@@ -6,7 +6,9 @@ export type TestFunction = (this: ITestContext) => any;
 export interface ITestBase<T> {
     name: string;
     readonly fullName: string[];
-    error?: { message: string, stack: string };
+    error?: unknown;
+    readonly errorMessage: string | undefined;
+    readonly errorStack: string | undefined;
     runCount: number;
     duration: number;
     module: string;
@@ -34,9 +36,22 @@ export class TestBase<T extends ITestBase<T>> implements ITestBase<T> {
     ) { }
 
     readonly children: T[] = [];
-    error?: { message: string, stack: string };
     runCount: number = 0;
     duration: number = 0;
+
+    error?: unknown;
+
+    get errorMessage() {
+        return this.error == null
+            ? undefined
+            : (this.error as any).message as string ?? String(this.error);
+    }
+
+    get errorStack() {
+        return this.error == null
+            ? undefined
+            : (this.error as any).stack as string ?? '';
+    }
 
     get module(): string {
         return this._module

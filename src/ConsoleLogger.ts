@@ -53,9 +53,9 @@ export class ConsoleLogger extends TestLogger {
             this.logModule(test);
             log(`${indent(test)}${chalk.redBright.bold('✗')} ${chalk.whiteBright(test.name)}` + duration(test));
             if (test.error) {
-                let testFrame = stackFrames(test.error.stack)
+                let testFrame = stackFrames(test.errorStack!)
                     .find(f => this.testFiles.indexOf(f.file) >= 0);
-                let errorMessage = this.showStacks && test.error.stack || test.error.message;
+                let errorMessage = this.showStacks && test.errorStack || test.errorMessage;
                 if (testFrame && testFrame.file)
                     log(`${indent(test)}  ${path.relative('.', testFrame.file)}:${testFrame.line}  ${errorMessage}`);
                 else

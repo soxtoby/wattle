@@ -17,7 +17,7 @@ export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
         .map(m => {
             try {
                 var module = require(path.resolve(m));
-            } catch (e) {
+            } catch (e: any) {
                 console.error(`Failed to load middleware module ${m}\n${e.stack}`);
                 process.exit(ExitCodes.ErrorLoadingMiddleware);
             }

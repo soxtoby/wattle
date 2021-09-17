@@ -13,7 +13,7 @@ export class AppVeyorLogger extends TestLogger {
                     '-FileName', test.module!,
                     '-Outcome', test.hasPassed ? 'Passed' : 'Failed',
                     '-Duration', test.duration.toFixed(0),
-                    ...(test.hasPassed ? [] : ['-ErrorMessage', test.error!.message, '-ErrorStackTrace', test.error!.stack])
+                    ...(test.hasPassed ? [] : ['-ErrorMessage', test.errorMessage!, '-ErrorStackTrace', test.errorStack!])
                 ]);
             }
         }
