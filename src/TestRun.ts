@@ -1,5 +1,6 @@
 import { bindMiddlewareFunction, ITestContext, ITestMiddleware } from "./Middleware";
 import { dependencies, reloadDependencies } from "./ModuleDependencies";
+import { resolveModule } from "./path";
 import { ITest, Test, TestFunction } from "./Test";
 import { TestEvent } from "./TestEvents";
 
@@ -52,7 +53,7 @@ export class TestRun {
     runModule(module: string, next: () => void) {
         this.currentModuleTests = this.allModuleTests[module] = [];
         this.importingModule = module;
-        delete require.cache[require.resolve(module)];
+        delete require.cache[resolveModule(module)];
 
         try {
             require(module);

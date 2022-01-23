@@ -1,4 +1,5 @@
 import * as chokidar from 'chokidar';
+import { resolveModule } from "./Path";
 
 export class DependencyWatcher {
     private watcher?: chokidar.FSWatcher;
@@ -88,6 +89,6 @@ function wattleDependencies() {
 
     wattleDeps = []; // Stop infinite recursion
     require('./index'); // Make sure wattle is in the require cache
-    wattleDeps = dependencies(require.resolve('./index'));
+    wattleDeps = dependencies(resolveModule('./index'));
     return wattleDeps;
 }

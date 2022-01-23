@@ -6,6 +6,7 @@ import { ConsoleLogger } from './ConsoleLogger';
 import { LogLevel } from "./LogLevel";
 import { DependencyWatcher } from './ModuleDependencies';
 import { MultiProcessRunner } from './MultiProcessRunner';
+import { normalizeFilePath, resolvePath } from "./Path";
 import { SingleProcessRunner } from './SingleProcessRunner';
 import { TeamCityLogger } from './TeamCityLogger';
 import { ITestInfo } from './Test';
@@ -79,21 +80,21 @@ export class TestRunner {
         let files = Object.entries(watchedDirs)
             .reduce((all, [dir, files]) => all.concat(files.map(f => path.join(dir, f))), [] as string[])
             .filter(f => !(f in watchedDirs))
-            .map(f => path.resolve(f));
+            .map(resolvePath);
         this.addToQueue(files);
     }
 
     private onFileAdded(file: string) {
-        file = path.resolve(file);
+        file = resolvePath(file);
         this.addToQueue([file]);
     }
 
     private onFileChanged(file: string) {
-        this.addToQueue([path.resolve(file)]);
+        this.addToQueue([resolvePath(file)]);
     }
 
     private onFileRemoved(file: string) {
-        file = path.resolve(file);
+        file = resolvePath(file);
         this.testQueue.delete(file);
 
         if (!this.testQueue.size && this.timeout)
@@ -175,7 +176,7 @@ function getMatchGlobs(testFiles: string[]) {
 
 async function resolveTestFiles(fileGlobs: string[]) {
     let files = await glob(fileGlobs, { onlyFiles: true, absolute: true });
-    return files.map(path.normalize);
+    return files.map(normalizeFilePath);
 }
 
 function getLogger(buildServer: boolean, logLevel: LogLevel, showStacks: boolean, testFiles: string[]): ITestLogger {

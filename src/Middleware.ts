@@ -17,9 +17,17 @@ export class TestMiddleware implements ITestMiddleware {
     runModule(module: string, next: () => void) { next(); }
 }
 
-export function bindMiddlewareFunction(selectMiddlewareFunction: (middleware: ITestMiddleware) => Function, remainingMiddleware: ITestMiddleware[], ...args: any[]): () => void {
+export function bindMiddlewareFunction<Args extends any[]>(
+    selectMiddlewareFunction: (middleware: ITestMiddleware) => (...args: [...Args, () => void]) => void,
+    remainingMiddleware: ITestMiddleware[],
+    ...args: Args
+): () => void {
     return remainingMiddleware.length
-        ? selectMiddlewareFunction(remainingMiddleware[0]).bind(remainingMiddleware[0], ...args, bindMiddlewareFunction(selectMiddlewareFunction, remainingMiddleware.slice(1), ...args))
+        ? (selectMiddlewareFunction(remainingMiddleware[0]) as any)
+            .bind(
+                remainingMiddleware[0],
+                ...args,
+                bindMiddlewareFunction(selectMiddlewareFunction, remainingMiddleware.slice(1), ...args))
         : () => { };
 }
 

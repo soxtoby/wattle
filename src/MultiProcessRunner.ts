@@ -2,6 +2,7 @@ import { ChildProcess, fork } from "child_process";
 import * as os from "os";
 import { execArgs } from "./CommandLineArgs";
 import { ExitCodes } from "./ExitCodes";
+import { resolveModule } from "./Path";
 import { isTestEvent, TestEvent } from "./TestEvents";
 import { TestProcessMessage } from "./TestProcessMessages";
 import { ITestRunnerConfig } from "./TestRunnerConfig";
@@ -44,7 +45,7 @@ export class MultiProcessRunner {
     }
 
     startTestProcess() {
-        let testProcess = fork(require.resolve('./TestProcess'), [], { execArgv: buildExecArgs() });
+        let testProcess = fork(resolveModule('./TestProcess'), [], { execArgv: buildExecArgs() });
         if (os.setPriority)
             os.setPriority(testProcess.pid!, os.constants.priority.PRIORITY_BELOW_NORMAL);
         testProcess.on('message', m => this.onMessage(testProcess, m as TestProcessMessage));

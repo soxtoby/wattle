@@ -5,6 +5,7 @@ import * as sinon from 'sinon';
 import { SinonSpy, SinonStub } from 'sinon';
 import { describe, then, when } from '../lib';
 import { ITestContext, TestMiddleware } from '../src/Middleware';
+import { resolveModule } from "../src/path";
 import { ITest, Test } from '../src/Test';
 import { TestRun } from '../src/TestRun';
 import './setup';
@@ -122,7 +123,7 @@ describe("running tests in test files", function () {
 
     when("test files are run", () => {
         let testFiles = ['../tests/test-files/file2.ts', '../tests/test-files/file1.ts'];
-        testFiles.forEach(f => delete require.cache[require.resolve(f)]);
+        testFiles.forEach(f => delete require.cache[resolveModule(f)]);
         sut.runTests(testFiles);
         mockPromises.tickAllTheWay();
 

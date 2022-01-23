@@ -1,8 +1,8 @@
 import * as console from 'console';
-import * as path from 'path';
 import { register } from 'ts-node';
 import { ExitCodes } from "./ExitCodes";
 import { isMiddleware, ITestMiddleware } from "./Middleware";
+import { requirePath } from "./Path";
 
 let isTypeScriptRegistered = false;
 export function registerTypeScript(tsProject?: string) {
@@ -16,7 +16,7 @@ export function loadMiddleware(middlewareModules: string[]): ITestMiddleware[] {
     return middlewareModules
         .map(m => {
             try {
-                var module = require(path.resolve(m));
+                var module = requirePath(m);
             } catch (e: any) {
                 console.error(`Failed to load middleware module ${m}\n${e.stack}`);
                 process.exit(ExitCodes.ErrorLoadingMiddleware);
