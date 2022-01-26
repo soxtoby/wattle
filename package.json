@@ -29,11 +29,11 @@
   },
   "dependencies": {
     "chalk": "^4",
-    "chokidar": "^3.3.1",
-    "fast-glob": "^3.1.1",
+    "chokidar": "^3",
+    "fast-glob": "^3",
     "log-update": "^4",
-    "node-trx": "^0.9.1",
-    "ts-node": "^9",
+    "node-trx": ">=0.9",
+    "ts-node": ">=9",
     "yargs": "^17"
   }
 }
