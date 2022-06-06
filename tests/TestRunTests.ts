@@ -5,7 +5,7 @@ import * as sinon from 'sinon';
 import { SinonSpy, SinonStub } from 'sinon';
 import { describe, then, when } from '../lib';
 import { ITestContext, TestMiddleware } from '../src/Middleware';
-import { resolveModule } from "../src/path";
+import { resolveModule } from "../src/Path";
 import { ITest, Test } from '../src/Test';
 import { TestRun } from '../src/TestRun';
 import './setup';
