@@ -1,6 +1,6 @@
 import { bindMiddlewareFunction, ITestContext, ITestMiddleware } from "./Middleware";
 import { dependencies, reloadDependencies } from "./ModuleDependencies";
-import { resolveModule } from "./path";
+import { resolveModule } from "./Path";
 import { ITest, Test, TestFunction } from "./Test";
 import { TestEvent } from "./TestEvents";
 
